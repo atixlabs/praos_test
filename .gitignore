@@ -1,2 +1,7 @@
 *.class
 *.log
+target/
+dist/*
+.idea/
+# intellij scala worksheet
+*.sc
