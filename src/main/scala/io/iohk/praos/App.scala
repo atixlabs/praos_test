@@ -25,14 +25,19 @@ object App {
 
     println(RelativeStake(Stake(5), Stake(10)))
 
-    val pk: PublicKey = PublicKey(1234)
-    println(pk)
+    val pk1: PublicKey = PublicKey(1234)
+    println(pk1)
+
+    val pk2: PublicKey = PublicKey(8901)
+    println(pk2)
 
     val sk: Key = PrivateKey(4567)
     println(sk)
 
-    val sd1 = StakeDistribution(pk -> s)
+    val sd1 = StakeDistribution(pk1 -> s, pk2 -> s)
     println(sd1)
-    val sd2 = Map[Int, Int](1 -> 2)
+
+    val rs1 = RelativeStake(pk1, sd1)
+    println(rs1)
   }
 }

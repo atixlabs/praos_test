@@ -21,14 +21,17 @@ object RelativeStake {
   }
 
   /**
+    * Creates a relative stake given a stakeholder's public key and a given stake distribution. The relative stake is
+    * calculated as the stake (as indicated in the stake distribution) held by the particular stakeholder identified by
+    * the given public key, divided by the total stake held by all the stakeholders (as indicated in the stake
+    * distribution).
     *
-    * @param publicKey
-    * @param stakeDistribution
-    * @return
+    * @param publicKey The public key used to identify a particular stakeholder.
+    * @param stakeDistribution The stake distribution to be used in the calculations.
     */
   def apply(publicKey: PublicKey, stakeDistribution: StakeDistribution): RelativeStake = {
     val stakeholderStake = stakeDistribution(publicKey)
-    val totalStake = stakeDistribution.mapValues(_.toInt).sum
+    val totalStake = Stake(stakeDistribution.values.map(_.toInt).sum)
     RelativeStake(stakeholderStake, totalStake)
   }
 }
