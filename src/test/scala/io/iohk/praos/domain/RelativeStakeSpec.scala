@@ -1,7 +1,6 @@
 package io.iohk.praos.domain
 
 import io.iohk.praos.crypto.Key
-import io.iohk.praos.domain.Commons.StakeDistribution
 import org.scalatest.{FlatSpec, GivenWhenThen}
 
 class RelativeStakeSpec extends FlatSpec with GivenWhenThen {

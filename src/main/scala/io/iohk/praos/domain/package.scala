@@ -1,10 +1,10 @@
-package io.iohk.praos.domain
+package io.iohk.praos
 
 import io.iohk.praos.crypto.Key
 import scala.collection.immutable.Map
 
 
-package object Commons {
+package object domain {
 
   /**
     * An amount of stake held by a stakeholder.

@@ -2,7 +2,7 @@ package io.iohk.praos
 
 import io.iohk.praos.domain.RelativeStake
 import io.iohk.praos.crypto.Key
-import io.iohk.praos.domain.Commons._
+import io.iohk.praos.domain._
 
 
 object Foo {
