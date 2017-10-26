@@ -1,4 +1,4 @@
-package main.scala.io.iohk.praos
+package io.iohk.praos
 
 package object crypto {
   type Key = Array[Byte]
@@ -9,12 +9,16 @@ package object crypto {
   val keyLength = 32
   private def genKey = (s: SecureRandom, length: Int) => new Key(length) map(_ => s.toByte)
 
+  private def XOR(x: Array[Byte], y: Array[Byte]): Array[Byte] =
+    (x.toList zip y.toList).map(elements => (elements._1 ^ elements._2).toByte).toArray
+
+  // Post: Return (publicKey, privateKey)
   def generateKeyPair(seed: SecureRandom): KeyPair = {
     (genKey(seed + 1, keyLength), genKey(seed, keyLength))
   }
 
   def getPublicKeyFromPrivateKey(privateKey: Key): Key = {
-    privateKey map( byte => (byte - 1).toByte)
+    privateKey map(byte => (byte - 1).toByte)
   }
 
   trait Cipher {
@@ -30,26 +34,16 @@ package object crypto {
   }
 
   object CipherImpl extends Cipher {
-    def encryptWith(data: Array[Byte], publicKey: Key): Array[Byte] = {
-      // TODO: Make a Dummy implementation
-      Array[Byte](0)
-    }
+    def encryptWith(data: Array[Byte], publicKey: Key): Array[Byte] = XOR(data, publicKey)
 
-    def decryptWith(encryptedData: Array[Byte], privateKey: Key): Option[Array[Byte]] = {
-      // TODO: Make a Dummy implementation
-      Option(Array[Byte](0))
-    }
+    def decryptWith(encryptedData: Array[Byte], privateKey: Key): Option[Array[Byte]] =
+      Option(XOR(encryptedData, getPublicKeyFromPrivateKey(privateKey)))
   }
 
   object SignerImpl extends Signer {
-    def signedWith(data: Array[Byte], privateKey: Key): Array[Byte] = {
-      // TODO: Make a Dummy implementation
-      Array[Byte](0)
-    }
+    def signedWith(data: Array[Byte], privateKey: Key): Array[Byte] =
+      (privateKey map (byte => (byte + 1).toByte)) ++ data
 
-    def stripSignature(signedData: Array[Byte]): (Key, Array[Byte]) = {
-      // TODO: Make a Dummy implementation
-      (Array[Byte](0), Array[Byte](0))
-    }
+    def stripSignature(signedData: Array[Byte]): (Key, Array[Byte]) = signedData.splitAt(keyLength)
   }
 }
