@@ -1,8 +1,8 @@
 package io.iohk.praos
 
-import io.iohk.praos.domain.{RelativeStake, Stake}
-import io.iohk.praos.crypto.{Key, PrivateKey, PublicKey}
-import io.iohk.praos.domain.MyTypes._
+import io.iohk.praos.domain.RelativeStake
+import io.iohk.praos.crypto.Key
+import io.iohk.praos.domain.Commons._
 
 
 object Foo {
@@ -15,7 +15,7 @@ object App {
 
   def main(args: Array[String]): Unit = {
 
-    val s = Stake(123)
+    val s:Stake = 123
     println(s)
 
     val rs = RelativeStake(1.2)
@@ -23,15 +23,15 @@ object App {
 
     println(Foo(13))
 
-    println(RelativeStake(Stake(5), Stake(10)))
+    println(RelativeStake(5, 10))
 
-    val pk1: PublicKey = PublicKey(1234)
+    var pk1: Key = akka.util.ByteString("123")
     println(pk1)
 
-    val pk2: PublicKey = PublicKey(8901)
+    val pk2: Key = akka.util.ByteString("456")
     println(pk2)
 
-    val sk: Key = PrivateKey(4567)
+    val sk: Key = akka.util.ByteString("789")
     println(sk)
 
     val sd1 = StakeDistribution(pk1 -> s, pk2 -> s)

@@ -1,7 +1,7 @@
 package io.iohk.praos.domain
 
-import io.iohk.praos.crypto.PublicKey
-import io.iohk.praos.domain.MyTypes.StakeDistribution
+import io.iohk.praos.crypto.Key
+import io.iohk.praos.domain.Commons._
 
 
 /**
@@ -29,9 +29,9 @@ object RelativeStake {
     * @param publicKey The public key used to identify a particular stakeholder.
     * @param stakeDistribution The stake distribution to be used in the calculations.
     */
-  def apply(publicKey: PublicKey, stakeDistribution: StakeDistribution): RelativeStake = {
+  def apply(publicKey: Key, stakeDistribution: StakeDistribution): RelativeStake = {
     val stakeholderStake = stakeDistribution(publicKey)
-    val totalStake = Stake(stakeDistribution.values.map(_.toInt).sum)
+    val totalStake = stakeDistribution.values.sum
     RelativeStake(stakeholderStake, totalStake)
   }
 }
@@ -42,4 +42,4 @@ object RelativeStake {
   * @constructor creates a relative stake given a fraction of stake.
   * @param fraction the fraction of stake
   */
-case class RelativeStake(fraction: Double)
+final case class RelativeStake(fraction: Double)
