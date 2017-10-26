@@ -3,6 +3,10 @@ package io.iohk.praos.domain
 import io.iohk.praos.crypto.Key
 import org.scalatest.{FlatSpec, GivenWhenThen}
 
+
+/**
+  * Unit tests for class [[io.iohk.praos.domain.RelativeStake]].
+  */
 class RelativeStakeSpec extends FlatSpec with GivenWhenThen {
 
   // Stakeholder U1

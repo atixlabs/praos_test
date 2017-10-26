@@ -13,7 +13,7 @@ object RelativeStake {
     * si) and the total stake held by all the stakeholders (denoted by sP). The relative stake is calculated as si/sP.
     *
     * @param stakeholderStake The total stake held by a particular stakeholder.
-    * @param totalStake       The total stake held by all the stakeholders.
+    * @param totalStake The total stake held by all the stakeholders.
     */
   def apply(stakeholderStake: Stake, totalStake: Stake): RelativeStake = {
     RelativeStake(stakeholderStake.toFloat / totalStake.toFloat)
@@ -38,7 +38,7 @@ object RelativeStake {
 /**
   * The fraction of stake held by a stakeholder w.r.t. the total stake held by all stakeholders.
   *
-  * @constructor creates a relative stake given a fraction of stake.
-  * @param fraction the fraction of stake
+  * @constructor Creates a relative stake given a fraction of stake.
+  * @param fraction The fraction of stake.
   */
 final case class RelativeStake(fraction: Double)
