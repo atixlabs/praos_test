@@ -23,26 +23,26 @@ class RelativeStakeCalculatorSpec extends FlatSpec with GivenWhenThen {
 
   "A stakeholder holding a stake of 10" should "have a relative stake of 10/20" in {
     Given("a stake distribution with a total stake of 20")
-    assert(RelativeStakeCalculator(publicKey1, stakeDistribution) == 10f/20)
+    assert(RelativeStakeCalculator.calculate(publicKey1, stakeDistribution) == 10f/20)
   }
 
   "A stakeholder holding a stake of 2" should "have a relative stake of 2/20" in {
     Given("a stake distribution with a total stake of 20")
-    assert(RelativeStakeCalculator(publicKey2, stakeDistribution) == 2f/20)
+    assert(RelativeStakeCalculator.calculate(publicKey2, stakeDistribution) == 2f/20)
   }
 
   "A stakeholder holding a stake of 8" should "have a relative stake of 8/20" in {
     Given("a stake distribution with a total stake of 20")
-    assert(RelativeStakeCalculator(publicKey3, stakeDistribution) == 8f/20)
+    assert(RelativeStakeCalculator.calculate(publicKey3, stakeDistribution) == 8f/20)
   }
 
   "A stakeholder holding all of the stake" should "have a relative stake of 1" in {
     val stakeDistribution = StakeDistribution(publicKey1 -> 10)
-    assert(RelativeStakeCalculator(publicKey1, stakeDistribution) == 1.0)
+    assert(RelativeStakeCalculator.calculate(publicKey1, stakeDistribution) == 1.0)
   }
 
   "A stakeholder holding no stake" should "have a relative stake of 0" in {
     val stakeDistribution = StakeDistribution(publicKey1 -> 0, publicKey2 -> 10)
-    assert(RelativeStakeCalculator(publicKey1, stakeDistribution) == 0.0)
+    assert(RelativeStakeCalculator.calculate(publicKey1, stakeDistribution) == 0.0)
   }
 }
