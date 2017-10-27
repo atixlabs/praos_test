@@ -9,8 +9,8 @@ class cryptoSpec extends FlatSpec with Matchers {
 
   trait cryptoTestSetup {
     val(userPublicKey, userPrivateKey)  = generateKeyPair(Random.nextInt())
-    val cipher = CipherImpl
-    val signer = SignerImpl
+    val cipher: Cipher = CipherStubImpl
+    val signer: Signer = SignerStubImpl
     def serialize(data: String): ByteString = ByteString(data)
   }
 
