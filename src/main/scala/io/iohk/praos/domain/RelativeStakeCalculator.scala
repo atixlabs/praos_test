@@ -17,7 +17,7 @@ object RelativeStakeCalculator {
     * @param totalStake The total stake held by all the stakeholders.
     * @note Precondition: totalStake > 0 && totalStake >= stakeholderStake
     */
-  def apply(stakeholderStake: Stake, totalStake: Stake): RelativeStake = {
+  def calculate(stakeholderStake: Stake, totalStake: Stake): RelativeStake = {
     stakeholderStake.toFloat / totalStake.toFloat
   }
 
@@ -31,10 +31,10 @@ object RelativeStakeCalculator {
     * @param stakeDistribution The stake distribution to be used in the calculations.
     * @note Precondition: stakeDistribution contains publicKey
     */
-  def apply(publicKey: Key, stakeDistribution: StakeDistribution): RelativeStake = {
+  def calculate(publicKey: Key, stakeDistribution: StakeDistribution): RelativeStake = {
     val stakeholderStake = stakeDistribution(publicKey)
     val totalStake = stakeDistribution.values.sum
-    RelativeStakeCalculator.apply(stakeholderStake, totalStake)
+    RelativeStakeCalculator.calculate(stakeholderStake, totalStake)
   }
 }
 
