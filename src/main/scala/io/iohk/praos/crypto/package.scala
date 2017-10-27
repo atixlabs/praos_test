@@ -9,7 +9,7 @@ package object crypto {
 
   // Dummy implementation to simulate a public-private key schema.
   val keyLength = 32
-  private def genKey = (s: SecureRandom, length: Int) => ByteString(new Array[Byte](length) map(_ => s.toByte))
+  private def genKey = (s: SecureRandom, length: Int) => ByteString(Array.fill(length)(s.toByte))
 
   private def XOR(x: ByteString, y: ByteString): ByteString =
     ByteString((x zip y).map(elements => (elements._1 ^ elements._2).toByte).toArray)
