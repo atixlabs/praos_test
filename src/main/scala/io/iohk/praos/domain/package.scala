@@ -16,6 +16,11 @@ package object domain {
     * public keys.
     */
   type StakeDistribution = Map[Key, Stake]
-  val StakeDistribution = Map
+  def StakeDistribution(ps: (Key, Stake)*) = Map[Key, Stake](ps: _*)
+
+  /**
+    * The fraction of stake held by a stakeholder w.r.t. the total stake held by all stakeholders.
+    */
+  type RelativeStake = Double
 }
 
