@@ -13,8 +13,10 @@ package object crypto {
 
   private def XOR(x: ByteString, y: ByteString): ByteString =
     ByteString((x zip y).map(elements => (elements._1 ^ elements._2).toByte).toArray)
-  
-  // Post: Return (publicKey, privateKey)
+
+  /**
+    * @return (publicKey, privateKey)
+    */
   def generateKeyPair(seed: SecureRandom): KeyPair = {
     (genKey(seed + 1, keyLength), genKey(seed, keyLength))
   }
@@ -29,9 +31,14 @@ package object crypto {
   }
 
   trait Signer {
-    // Post: Return signedData
+    /**
+      * @return signedData
+      */
     def signedWith(data: ByteString, privateKey: Key): ByteString
-    // Post: Return (publicKey, data)
+
+    /**
+      * @return (publicKey, data)
+      */
     def stripSignature(signedData: ByteString): (Key, ByteString)
   }
 
