@@ -55,4 +55,9 @@ package object crypto {
 
     def stripSignature(signedData: ByteString): (Key, ByteString) = signedData.splitAt(keyLength)
   }
+
+  /**
+    * The seed for a PRNG.
+    */
+  type Seed = Int
 }

@@ -5,3 +5,4 @@ dist/*
 .idea/
 # intellij scala worksheet
 *.sc
+*.iml
