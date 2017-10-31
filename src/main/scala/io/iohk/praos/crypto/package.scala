@@ -42,14 +42,14 @@ package object crypto {
     def stripSignature(signedData: ByteString): (Key, ByteString)
   }
 
-  object CipherImpl extends Cipher {
+  object CipherStubImpl extends Cipher {
     def encryptWith(data: ByteString, publicKey: Key): ByteString = XOR(data, publicKey)
 
     def decryptWith(encryptedData: ByteString, privateKey: Key): Option[ByteString] =
       Option(XOR(encryptedData, getPublicKeyFromPrivateKey(privateKey)))
   }
 
-  object SignerImpl extends Signer {
+  object SignerStubImpl extends Signer {
     def signedWith(data: ByteString, privateKey: Key): ByteString =
       getPublicKeyFromPrivateKey(privateKey) ++ data
 
