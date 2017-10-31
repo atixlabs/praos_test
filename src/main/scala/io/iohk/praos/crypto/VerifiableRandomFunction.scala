@@ -11,7 +11,7 @@ case class VrfProof(random: RandomValue, proof: ByteString)
 
 object VrfProof {
   // TODO: When the VrfProof be well defined, change to the true random length
-  val randomLength = 4
+  val randomLength = 32
 }
 
 trait VerifiableRandomFunction {

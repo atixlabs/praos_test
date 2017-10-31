@@ -36,3 +36,8 @@ parallelExecution in Test := false
 testOptions in Test += Tests.Argument("-oD")
 
 mainClass in Compile := Some("io.iohk.praos.App")
+
+scalacOptions in (Compile, console) ~= (_.filterNot(Set(
+  "-Ywarn-unused-import",
+  "-Xfatal-warnings"
+)))
