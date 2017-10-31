@@ -22,5 +22,13 @@ package object domain {
     * The fraction of stake held by a stakeholder w.r.t. the total stake held by all stakeholders.
     */
   type RelativeStake = Double
+
+  type SlotNumber = Int
+
+  type Blockchain = List[Block]
+
+  def applyBlockChain(blockchain: Blockchain, genesisBlock: GenesisBlock): GenesisBlock = {
+    blockchain.foldLeft(genesisBlock)((tempGenesisBlock: GenesisBlock, block: Block) => block.apply(tempGenesisBlock))
+  }
 }
 
