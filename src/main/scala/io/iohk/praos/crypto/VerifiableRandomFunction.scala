@@ -9,6 +9,11 @@ import akka.util.ByteString
   */
 case class VrfProof(random: RandomValue, proof: ByteString)
 
+object VrfProof {
+  // TODO: When the VrfProof be well defined, change to the true random length
+  val randomLength = 4
+}
+
 trait VerifiableRandomFunction {
 
   def prove(privateKey: Key, randomSeed: RandomValue): VrfProof
