@@ -18,6 +18,16 @@ package object domain {
   type StakeDistribution = Map[Key, Stake]
   def StakeDistribution(ps: (Key, Stake)*) = Map[Key, Stake](ps: _*)
 
+  def applyTransaction(transaction: Transaction, stakeDistribution: StakeDistribution): StakeDistribution = {
+    // TODO: Handle logic errors (i.e. that the transaction makes sense in the initial distribution)
+    val resultingSenderStake = stakeDistribution(transaction.senderPublicKey) - transaction.stake
+    val resultingRecipientStake = stakeDistribution(transaction.recipientPublicKey) + transaction.stake
+    val resultingStakeDistribution = stakeDistribution
+      .updated(transaction.senderPublicKey, resultingSenderStake)
+      .updated(transaction.recipientPublicKey, resultingRecipientStake)
+    resultingStakeDistribution
+  }
+
   /**
     * The fraction of stake held by a stakeholder w.r.t. the total stake held by all stakeholders.
     */
@@ -29,7 +39,8 @@ package object domain {
   def Blockchain(bs: Block*) = List[Block](bs: _*)
 
   def applyBlockChain(blockchain: Blockchain, genesisBlock: GenesisBlock): GenesisBlock = {
-    blockchain.foldLeft(genesisBlock)((tempGenesisBlock: GenesisBlock, block: Block) => block.apply(tempGenesisBlock))
+    blockchain.foldLeft(genesisBlock)(
+      (tempGenesisBlock: GenesisBlock, block: Block) => tempGenesisBlock.applyBlock(block))
   }
 }
 

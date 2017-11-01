@@ -1,13 +1,13 @@
 package io.iohk.praos.domain
 
 import io.iohk.praos.crypto.Key
-import org.scalatest.{FlatSpec, GivenWhenThen}
+import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
 
 
 /**
   * Unit tests for class [[io.iohk.praos.domain.Transaction]].
   */
-class TransactionSpec extends FlatSpec with GivenWhenThen {
+class TransactionSpec extends FlatSpec with GivenWhenThen with Matchers {
 
   // Stakeholder U1
   var publicKey1: Key = akka.util.ByteString("1")
@@ -25,20 +25,20 @@ class TransactionSpec extends FlatSpec with GivenWhenThen {
   val transaction = Transaction(publicKey1, publicKey2, 3)
 
   // The resulting stake distribution of applying "transaction" to "stakeDistribution".
-  val resultingStakeDistribution = transaction.apply(stakeDistribution)
+  val resultingStakeDistribution = applyTransaction(transaction, stakeDistribution)
 
   "The stakeholder U1 holding a stake of 10" should "have a resulting stake of 7" in {
     When("a transaction transferring a stake of 3 from U1 to U2 is applied")
-    assert(resultingStakeDistribution(publicKey1) == 7)
+    resultingStakeDistribution(publicKey1) shouldBe 7
   }
 
   "The stakeholder U2 holding a stake of 2" should "have a resulting stake of 5" in {
     When("a transaction transferring a stake of 3 from U1 to U2 is applied")
-    assert(resultingStakeDistribution(publicKey2) == 5)
+    resultingStakeDistribution(publicKey2) shouldBe 5
   }
 
   "A well-formed transaction" should "preserve the total stake across stake distributions" in {
     val resultingStakeDistributionTotalStake = resultingStakeDistribution.values.sum
-    assert(resultingStakeDistributionTotalStake == 20)
+    resultingStakeDistributionTotalStake shouldBe 20
   }
 }
