@@ -33,9 +33,9 @@ class BlockSpec extends FlatSpec with Matchers {
 
   "The application of a block to an initial genesis block" should
     "apply all transactions in the block and calculate the new nonce" in {
-    val newGenesisBlock = block.apply(genesisBlock)
+    val newGenesisBlock = genesisBlock.applyBlock(block)
     val expectedStakeDistribution = StakeDistribution(publicKey1 -> 8, publicKey2 -> 4, publicKey3 -> 8)
-    assert(newGenesisBlock.genesisDistribution == expectedStakeDistribution)
-    assert(newGenesisBlock.genesisNonce == 5) // 2 ++ 1 == "10" ++ "1" == "101" == 5
+    newGenesisBlock.genesisDistribution should contain theSameElementsAs expectedStakeDistribution
+    newGenesisBlock.genesisNonce shouldBe 5 // 2 ++ 1 == "10" ++ "1" == "101" == 5
   }
 }

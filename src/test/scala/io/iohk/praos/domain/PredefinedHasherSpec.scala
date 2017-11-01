@@ -15,6 +15,6 @@ class PredefinedHasherSpec extends FlatSpec with Matchers {
     val message = ByteString("AtixLabs")
     val digest = ByteString(DatatypeConverter.parseHexBinary("b98ae57c8040238c8d2edca55493c40b"))
 
-    assert(md5Hasher.hash(message) == digest)
+    md5Hasher.hash(message) shouldBe digest
   }
 }
