@@ -26,6 +26,7 @@ package object domain {
   type SlotNumber = Int
 
   type Blockchain = List[Block]
+  def Blockchain(bs: Block*) = List[Block](bs: _*)
 
   def applyBlockChain(blockchain: Blockchain, genesisBlock: GenesisBlock): GenesisBlock = {
     blockchain.foldLeft(genesisBlock)((tempGenesisBlock: GenesisBlock, block: Block) => block.apply(tempGenesisBlock))

@@ -30,11 +30,16 @@ package object crypto {
     def decryptWith(encryptedData: ByteString, privateKey: Key): Option[ByteString]
   }
 
+  /**
+    * @note This abstraction differs slightly from the one in the Praos Formalization (namely "Signed a"):
+    *       We do not define "signed things" but "things that are accompanied by a signature", along the lines of what
+    *       is defined in the Praos Manuscript, Definition 2.
+    */
   trait Signer {
     /**
-      * @return signedData
+      * @return signature
       */
-    def signedWith(data: ByteString, privateKey: Key): ByteString
+    def getSignature(data: ByteString, privateKey: Key): ByteString
 
     /**
       * @return (publicKey, data)
@@ -50,7 +55,7 @@ package object crypto {
   }
 
   object SignerStubImpl extends Signer {
-    def signedWith(data: ByteString, privateKey: Key): ByteString =
+    def getSignature(data: ByteString, privateKey: Key): ByteString =
       getPublicKeyFromPrivateKey(privateKey) ++ data
 
     def stripSignature(signedData: ByteString): (Key, ByteString) = signedData.splitAt(keyLength)

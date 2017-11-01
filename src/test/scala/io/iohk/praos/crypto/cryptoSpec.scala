@@ -30,11 +30,11 @@ class cryptoSpec extends FlatSpec with Matchers {
 
   "Signer" should "sign a message using user's sk and then strip the signed message correctly" in new testSetup {
     val message = serialize("I'm stakeholder Ua")
-    signer.stripSignature(signer.signedWith(message, userPrivateKey)) should be (userPublicKey, message)
+    signer.stripSignature(signer.getSignature(message, userPrivateKey)) should be (userPublicKey, message)
   }
 
   "Signer" should "NOT sign a message using user's pk and then strip the signed message correctly" in new testSetup {
     val message = serialize("I'm stakeholder Ua")
-    signer.stripSignature(signer.signedWith(message, userPublicKey)) shouldNot be (userPublicKey, message)
+    signer.stripSignature(signer.getSignature(message, userPublicKey)) shouldNot be (userPublicKey, message)
   }
 }
