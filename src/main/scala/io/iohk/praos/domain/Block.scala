@@ -1,6 +1,6 @@
 package io.iohk.praos.domain
 
-import io.iohk.praos.crypto.{Hasher, Seed, Signature, VrfProof}
+import io.iohk.praos.crypto._
 
 
 case class Block(
@@ -9,4 +9,8 @@ case class Block(
   data        : List[Transaction],
   proof       : VrfProof,
   nonce       : (Seed, VrfProof),
-  signature   : Signature)
+  signature   : Signature) {
+
+  // TODO: Implement it
+  def blockHash = akka.util.ByteString("abc")
+}

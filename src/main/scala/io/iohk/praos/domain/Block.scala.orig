@@ -1,0 +1,32 @@
+package io.iohk.praos.domain
+
+<<<<<<< Updated upstream
+import io.iohk.praos.crypto.{Hasher, Seed, Signature, VrfProof}
+=======
+import io.iohk.praos.crypto._
+>>>>>>> Stashed changes
+
+
+case class Block(
+  state       : Option[Hasher#Digest],
+  slotNumber  : SlotNumber,
+  data        : List[Transaction],
+  proof       : VrfProof,
+  nonce       : (Seed, VrfProof),
+<<<<<<< Updated upstream
+  signature   : Signature)
+=======
+  signature   : Signature) {
+
+  def apply(genesisBlock: GenesisBlock): GenesisBlock = {
+    val newGenesisDistribution = data.foldLeft(genesisBlock.genesisDistribution)(
+      (sd: StakeDistribution, tx: Transaction) => tx.apply(sd)
+    )
+    val newGenesisNonce = combineSeeds(genesisBlock.genesisNonce, nonce._1)
+    GenesisBlock(newGenesisDistribution, newGenesisNonce)
+  }
+
+  // TODO: Implement it
+  def blockHash = akka.util.ByteString("abc")
+}
+>>>>>>> Stashed changes

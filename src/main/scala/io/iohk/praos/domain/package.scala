@@ -35,6 +35,9 @@ package object domain {
 
   type SlotNumber = Int
 
+  /**
+    * The order is assume from oldest to latest
+    */
   type Blockchain = List[Block]
 
   def applyBlockChain(blockchain: Blockchain, genesisBlock: GenesisBlock): GenesisBlock = {
