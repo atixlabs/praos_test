@@ -32,4 +32,3 @@ object VerifiableRandomFunctionStubImpl extends VerifiableRandomFunction {
   def verify(publicKey: Key, randomSeed: RandomValue, vrfProof: VrfProof): Boolean =
     publicKey == vrfProof.proof && randomSeed == vrfProof.random
 }
-
