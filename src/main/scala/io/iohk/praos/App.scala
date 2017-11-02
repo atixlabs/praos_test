@@ -8,11 +8,11 @@ object App {
   def main(args: Array[String]): Unit = {
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder1 = StakeHolder(publicKey1, privateKey1)
+    val stakeholder1 = StakeHolder(privateKey1, publicKey1)
     val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder2 = StakeHolder(publicKey2, privateKey2)
+    val stakeholder2 = StakeHolder(privateKey2, publicKey2)
     val (publicKey3, privateKey3) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder3 = StakeHolder(publicKey3, privateKey3)
+    val stakeholder3 = StakeHolder(privateKey3, publicKey3)
     val stakeHolders = List(stakeholder1, stakeholder2, stakeholder3)
     val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4)
     // Setup Environment

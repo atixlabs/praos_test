@@ -13,7 +13,7 @@ class ElectionManagerSpec extends FlatSpec with Matchers {
     val electionManager = ElectionManager(activeSlotCoefficient = 1, vrf)
 
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder1 = StakeHolder(publicKey1, privateKey1)
+    val stakeholder1 = StakeHolder(privateKey1, publicKey1)
     val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 10)
     val genesisNonce = generateNewRandomValue()
     val genesis = GenesisBlock(stakeDistribution, genesisNonce)
@@ -33,9 +33,9 @@ class ElectionManagerSpec extends FlatSpec with Matchers {
     val electionManager = ElectionManager(activeSlotCoefficient = 0.7, vrf)
 
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder1 = StakeHolder(publicKey1, privateKey1)
+    val stakeholder1 = StakeHolder(privateKey1, publicKey1)
     val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder2 = StakeHolder(publicKey2, privateKey2)
+    val stakeholder2 = StakeHolder(privateKey2, publicKey2)
     val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 0, stakeholder2.publicKey -> 5)
     val genesisNonce = generateNewRandomValue()
     val genesis = GenesisBlock(stakeDistribution, genesisNonce)
