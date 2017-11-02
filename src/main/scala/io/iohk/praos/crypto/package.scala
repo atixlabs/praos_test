@@ -12,6 +12,7 @@ package object crypto {
 
   // Dummy implementation to simulate a public-private key schema.
   val keyLength = 32
+
   private def genKey = (s: RandomValue, length: Int) => ByteString(Array.fill(length)(s.toByte))
 
   private def XOR(x: ByteString, y: ByteString): ByteString =
@@ -27,11 +28,12 @@ package object crypto {
   }
 
   def getPublicKeyFromPrivateKey(privateKey: Key): Key = {
-    privateKey map(byte => (byte + 1).toByte)
+    privateKey map (byte => (byte + 1).toByte)
   }
 
   trait Cipher {
     def encryptWith(data: ByteString, publicKey: Key): ByteString
+
     def decryptWith(encryptedData: ByteString, privateKey: Key): Option[ByteString]
   }
 
@@ -64,11 +66,10 @@ package object crypto {
   /**
     * The seed for a PRNG.
     */
-  type Seed = RandomValue
+  type Seed = Int
 
   /**
     * Operation used to "combine" seeds. According to the Praos Formalization, it should be associative.
-    * @note Currently implemented as the number obtained by concatenating the binary representation of both arguments.
     */
   def combineSeeds(x: Seed, y: Seed): Seed = abs(x + y)
 
