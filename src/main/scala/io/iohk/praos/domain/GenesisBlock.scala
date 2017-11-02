@@ -11,10 +11,11 @@ import io.iohk.praos.crypto.{Seed, combineSeeds}
   */
 case class GenesisBlock(genesisDistribution: StakeDistribution, genesisNonce: Seed) {
   def applyBlock(block: Block): GenesisBlock = {
-    val newGenesisDistribution = block.data.foldLeft(genesisDistribution)(
+    val unsignedBlock = block.value
+    val newGenesisDistribution = unsignedBlock.data.foldLeft(genesisDistribution)(
       (sd: StakeDistribution, tx: Transaction) => applyTransaction(tx, sd)
     )
-    val newGenesisNonce = combineSeeds(genesisNonce, block.nonce._1)
+    val newGenesisNonce = combineSeeds(genesisNonce, unsignedBlock.nonce._1)
     GenesisBlock(newGenesisDistribution, newGenesisNonce)
   }
 }

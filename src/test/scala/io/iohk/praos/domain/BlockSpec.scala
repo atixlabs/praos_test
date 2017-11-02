@@ -29,7 +29,8 @@ class BlockSpec extends FlatSpec with Matchers {
   val seed: Seed = 1
   val blockNonce = (seed, VrfProof(789, akka.util.ByteString("ghi")))
   val signature: Signature = akka.util.ByteString("jkl")
-  val block = Block(state, slotNumber, data, proof, blockNonce, signature)
+  val unsignedBlock = UnsignedBlock(state, slotNumber, data, proof, blockNonce)
+  val block = Block(unsignedBlock, signature)
 
   "The application of a block to an initial genesis block" should
     "apply all transactions in the block and calculate the new nonce" in {

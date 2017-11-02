@@ -3,7 +3,7 @@ package io.iohk.praos.domain
 import io.iohk.praos.crypto.{Hasher, Seed, Signature, VrfProof}
 
 
-object Block {
+object Block2 {
 
   private case class UnsignedBlock(
     state       : Option[Hasher#Digest],
@@ -28,7 +28,7 @@ object Block {
   */
 }
 
-case class Block(
+case class Block2(
   state       : Option[Hasher#Digest],
   slotNumber  : SlotNumber,
   data        : List[Transaction],

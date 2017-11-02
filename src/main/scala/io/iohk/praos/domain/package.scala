@@ -1,6 +1,7 @@
 package io.iohk.praos
 
-import io.iohk.praos.crypto.Key
+import io.iohk.praos.crypto.{Key, Signature, Signed}
+
 import scala.collection.immutable.Map
 
 
@@ -34,6 +35,9 @@ package object domain {
   type RelativeStake = Double
 
   type SlotNumber = Int
+
+  type Block = Signed[UnsignedBlock]
+  def Block(unsignedBlock: UnsignedBlock, signature: Signature) = Signed[UnsignedBlock](unsignedBlock, signature)
 
   type Blockchain = List[Block]
   def Blockchain(bs: Block*) = List[Block](bs: _*)

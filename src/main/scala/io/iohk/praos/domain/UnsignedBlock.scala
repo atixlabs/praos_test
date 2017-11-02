@@ -8,4 +8,7 @@ case class UnsignedBlock(
   slotNumber  : SlotNumber,
   data        : List[Transaction],
   proof       : VrfProof,
-  nonce       : (Seed, VrfProof))
+  nonce       : (Seed, VrfProof)) extends Serializable {
+
+  override def toString: String = s"UnsignedBlock($state,$slotNumber,$data,$proof,$nonce)"
+}
