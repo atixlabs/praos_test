@@ -19,13 +19,17 @@ package object domain {
   def StakeDistribution(ps: (Key, Stake)*) = Map[Key, Stake](ps: _*)
 
   def applyTransaction(transaction: Transaction, stakeDistribution: StakeDistribution): StakeDistribution = {
-    // TODO: Handle logic errors (i.e. that the transaction makes sense in the initial distribution)
-    val resultingSenderStake = stakeDistribution(transaction.senderPublicKey) - transaction.stake
-    val resultingRecipientStake = stakeDistribution(transaction.recipientPublicKey) + transaction.stake
-    val resultingStakeDistribution = stakeDistribution
-      .updated(transaction.senderPublicKey, resultingSenderStake)
-      .updated(transaction.recipientPublicKey, resultingRecipientStake)
-    resultingStakeDistribution
+    if (transaction.senderPublicKey == transaction.recipientPublicKey) { // "self" transaction
+      stakeDistribution
+    } else {
+      // TODO: Handle logic errors (i.e. that the transaction makes sense in the initial distribution)
+      val resultingSenderStake = stakeDistribution(transaction.senderPublicKey) - transaction.stake
+      val resultingRecipientStake = stakeDistribution(transaction.recipientPublicKey) + transaction.stake
+      val resultingStakeDistribution = stakeDistribution
+        .updated(transaction.senderPublicKey, resultingSenderStake)
+        .updated(transaction.recipientPublicKey, resultingRecipientStake)
+      resultingStakeDistribution
+    }
   }
 
   /**
