@@ -12,7 +12,6 @@ package object crypto {
 
   // Dummy implementation to simulate a public-private key schema.
   val keyLength = 32
-
   private def genKey = (s: RandomValue, length: Int) => ByteString(Array.fill(length)(s.toByte))
 
   private def XOR(x: ByteString, y: ByteString): ByteString =
@@ -28,12 +27,11 @@ package object crypto {
   }
 
   def getPublicKeyFromPrivateKey(privateKey: Key): Key = {
-    privateKey map (byte => (byte + 1).toByte)
+    privateKey map(byte => (byte + 1).toByte)
   }
 
   trait Cipher {
     def encryptWith(data: ByteString, publicKey: Key): ByteString
-
     def decryptWith(encryptedData: ByteString, privateKey: Key): Option[ByteString]
   }
 
@@ -63,12 +61,45 @@ package object crypto {
     def stripSignature(signedData: ByteString): (Key, ByteString) = signedData.splitAt(keyLength)
   }
 
-  type Seed = Int
+  /**
+    * The seed for a PRNG.
+    */
+  type Seed = RandomValue
+
   /**
     * Operation used to "combine" seeds. According to the Praos Formalization, it should be associative.
-    *
     * @note Currently implemented as the number obtained by concatenating the binary representation of both arguments.
-    **/
+    */
   def combineSeeds(x: Seed, y: Seed): Seed = abs(x + y)
 
+  /**
+    * A calculator of hash values.
+    */
+  trait Hasher {
+
+    /** Message digest. */
+    type Digest = ByteString
+
+    /**
+      * Hashes a message.
+      *
+      * @param message  The message to be hashed.
+      * @return  The message digest.
+      */
+    def hash(message: ByteString): Digest
+  }
+
+  /**
+    * A pre-defined hasher.
+    *
+    * @param algorithm  A pre-defined algorithm (e.g. "MD5").
+    * @note  Precondition: The given algorithm is supported.
+    */
+  case class PredefinedHasher(algorithm: String) extends Hasher {
+    override def hash(message: ByteString): Digest = {
+      ByteString(java.security.MessageDigest.getInstance(algorithm).digest(message.toArray))
+    }
+  }
+
+  type Signature = ByteString
 }
