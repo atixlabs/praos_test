@@ -1,23 +1,24 @@
 package io.iohk.praos.domain
 
-import akka.util.ByteString
 import io.iohk.praos.crypto._
 
 
-object BlockFactory {
+case class BlockFactory(signer: Signer, vrf: VerifiableRandomFunction) {
 
   def makeBlock(
     slotNumber        : SlotNumber,
-    isLeader          : VrfProof,
+    isLeader          : VerifiableRandomFunction#VrfProof,
     transactions      : List[Transaction],
     stakeholderState  : StakeholderState): Block = {
 
+    val nonce = stakeholderState.genesisCurrent.genesisNonce
 
-    // TODO: Fix VrfProof issue first.
-    val nonce = (123, VrfProof(123, ByteString("abc"))) // vrf(...)
-    val unsignedBlock = UnsignedBlock(stakeholderState.state, slotNumber, transactions, isLeader, nonce)
+    // TODO: Use slotToSeed when implemented.
+    val seed = combineSeeds(combineSeeds(nonce, slotNumber), seedNonce)
 
-    // FIXME: SignerImpl is hard-coded for simplicity.
-    SignerImpl.signedWith(unsignedBlock, stakeholderState.privateKey)
+    val blockNonce = vrf.prove(stakeholderState.privateKey, seed)
+    val unsignedBlock = UnsignedBlock(stakeholderState.state, slotNumber, transactions, isLeader, blockNonce)
+
+    signer.signedWith(unsignedBlock, stakeholderState.privateKey)
   }
 }

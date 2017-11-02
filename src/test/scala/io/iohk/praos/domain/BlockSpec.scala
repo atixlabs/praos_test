@@ -25,9 +25,9 @@ class BlockSpec extends FlatSpec with Matchers {
   val state = Some(prevBlockHash)
   val slotNumber: SlotNumber = 123
   val data = List(transaction1, transaction2)
-  val proof = VrfProof(456, akka.util.ByteString("def"))
+  val proof = akka.util.ByteString("def")
   val seed: Seed = 1
-  val blockNonce = (seed, VrfProof(789, akka.util.ByteString("ghi")))
+  val blockNonce = (seed, akka.util.ByteString("ghi"))
   val signature: Signature = akka.util.ByteString("jkl")
   val unsignedBlock = UnsignedBlock(state, slotNumber, data, proof, blockNonce)
   val block = Block(unsignedBlock, signature)
