@@ -3,12 +3,10 @@ package io.iohk.praos.crypto
 import org.scalatest.{FlatSpec, Matchers}
 import akka.util.ByteString
 
-import scala.util.Random
-
 class cryptoSpec extends FlatSpec with Matchers {
 
   trait testSetup {
-    val (userPublicKey, userPrivateKey) = generateKeyPair(Random.nextInt())
+    val (userPublicKey, userPrivateKey) = generateKeyPair(generateNewRandomValue())
     val cipher: Cipher = CipherStubImpl
     val signer: Signer = SignerStubImpl
     def serialize(data: String): ByteString = ByteString(data)
