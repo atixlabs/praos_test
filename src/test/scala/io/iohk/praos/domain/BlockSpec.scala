@@ -37,6 +37,6 @@ class BlockSpec extends FlatSpec with Matchers {
     val newGenesisBlock = genesisBlock.applyBlock(block)
     val expectedStakeDistribution = StakeDistribution(publicKey1 -> 8, publicKey2 -> 4, publicKey3 -> 8)
     newGenesisBlock.genesisDistribution should contain theSameElementsAs expectedStakeDistribution
-    newGenesisBlock.genesisNonce shouldBe 5 // 2 ++ 1 == "10" ++ "1" == "101" == 5
+    newGenesisBlock.genesisNonce shouldBe 3 // 2 + 1
   }
 }
