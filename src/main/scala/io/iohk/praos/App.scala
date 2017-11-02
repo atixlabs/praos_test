@@ -1,17 +1,17 @@
 package io.iohk.praos
 
-import scala.util.Random
 import io.iohk.praos.domain._
+import io.iohk.praos.crypto.generateNewRandomValue
 
 object App {
 
   def main(args: Array[String]): Unit = {
     // Setup an Stake Distribution
-    val (publicKey1, privateKey1) = crypto.generateKeyPair(Random.nextInt())
+    val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = StakeHolder(publicKey1, privateKey1)
-    val (publicKey2, privateKey2) = crypto.generateKeyPair(Random.nextInt())
+    val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder2 = StakeHolder(publicKey2, privateKey2)
-    val (publicKey3, privateKey3) = crypto.generateKeyPair(Random.nextInt())
+    val (publicKey3, privateKey3) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder3 = StakeHolder(publicKey3, privateKey3)
     val stakeHolders = List(stakeholder1, stakeholder2, stakeholder3)
     val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4)
