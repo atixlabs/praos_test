@@ -7,7 +7,7 @@ import io.iohk.praos.domain.{Stake, StakeDistribution, Transaction, applyTransac
 
 object TransactionsGenerator {
 
-  type Stakeholder = (Key, Stake)
+  private type Stakeholder = (Key, Stake)
 
   private def chooseRandomStakeholderFrom(stakeDistribution: StakeDistribution): Stakeholder = {
     val stakeDistributionAsSeq = stakeDistribution.toSeq
@@ -34,7 +34,7 @@ object TransactionsGenerator {
   }
 
   def generateTxs(stakeDistribution: StakeDistribution, n: Int): List[Transaction] = {
-    require(n > 0, "Number of transactions must be positive")
+    require(n >= 0, "Number of transactions must be greater or equal to zero")
     @tailrec
     def rec(stakeDistribution: StakeDistribution, n: Int, acc: List[Transaction]): List[Transaction] = {
       if (n == 0) acc
