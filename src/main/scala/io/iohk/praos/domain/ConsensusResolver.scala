@@ -1,9 +1,9 @@
 package io.iohk.praos.domain
 
-case class BlockchainManager() {
+object ConsensusResolver {
 
   def receiveChain(newChain: Blockchain, state: BlockchainState): BlockchainState = {
-    BlockchainState(state.blockchain, state.maybeHeadBlockHash, state.receivedChains :+ newChain)
+    BlockchainState(state.fullBlockchain, state.receivedChains :+ newChain)
   }
 
   /**
@@ -32,11 +32,11 @@ case class BlockchainManager() {
     */
   def pickMaxValid(state: BlockchainState): BlockchainState = {
     val validBlockChains: List[Option[Blockchain]] = state.receivedChains
-      .map(receivedChain => join(state.blockchain, receivedChain))
-    val maxBlockchain = validBlockChains.foldLeft(state.blockchain){ (currentMaxBlockchain, maybeBlockchain) =>
+      .map(receivedChain => join(state.fullBlockchain, receivedChain))
+    val maxBlockchain = validBlockChains.foldLeft(state.fullBlockchain){ (currentMaxBlockchain, maybeBlockchain) =>
       if (maybeBlockchain.isDefined && maybeBlockchain.get.length > currentMaxBlockchain.length) maybeBlockchain.get
       else currentMaxBlockchain
     }
-    BlockchainState(maxBlockchain, maxBlockchain.lastOption.map(_.blockHash), List.empty[Blockchain])
+    BlockchainState(maxBlockchain, List.empty[Blockchain])
   }
 }

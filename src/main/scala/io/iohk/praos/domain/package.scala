@@ -36,7 +36,9 @@ package object domain {
   type SlotNumber = Int
 
   /**
-    * The order is assume from oldest to latest
+    *  Is important denote that the Haskell specification variate from the standard definition of Blockchain.
+    *  Here its defined as a list of blocks, and not referred to the "unique" blockchain inself.
+    *  @note For each blockchain, the order is assume from oldest to latest.
     */
   type Blockchain = List[Block]
 
