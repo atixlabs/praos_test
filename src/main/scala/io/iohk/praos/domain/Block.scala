@@ -1,5 +1,6 @@
 package io.iohk.praos.domain
 
+import akka.util.ByteString
 import io.iohk.praos.crypto._
 
 
@@ -12,5 +13,5 @@ case class Block(
   signature   : Signature) {
 
   // TODO: Implement it
-  def blockHash = akka.util.ByteString("abc")
+  def blockHash: ByteString = ByteString(slotNumber)
 }

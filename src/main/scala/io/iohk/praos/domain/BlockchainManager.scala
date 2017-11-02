@@ -18,11 +18,11 @@ case class BlockchainManager() {
     * a = [] and b = [x1] result of join(a,b)= [x1]
     * a = [x1, x2] and b = [x3] result of join(a,b)= [x1, x2, x3]
     */
-  private def join(baseBlockchains: Blockchain, possibleExtension: Blockchain): Option[Blockchain] = {
+  private def join(baseBlockchain: Blockchain, possibleExtension: Blockchain): Option[Blockchain] = {
     possibleExtension match {
-      case Nil => Some(baseBlockchains)
-      case possibleExtensionHead :: _ if baseBlockchains.lastOption.map(_.blockHash) == possibleExtensionHead.state =>
-        Some(baseBlockchains ++ possibleExtension)
+      case Nil => Some(baseBlockchain)
+      case possibleExtensionHead :: _ if baseBlockchain.lastOption.map(_.blockHash) == possibleExtensionHead.state =>
+        Some(baseBlockchain ++ possibleExtension)
       case _ => None
     }
   }
