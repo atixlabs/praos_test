@@ -29,7 +29,6 @@ class TransactionGeneratorSpec  extends FlatSpec with Matchers {
 
   "TransactionGeneratorSpec" should "generate 5 consecutive transactions given a stakeholder distribution" in new TestSetup {
     val txs: List[Transaction] = TransactionsGenerator.generateTxs(initialStakeDistribution, 5)
-    txs.foreach(tx => println(tx.senderPublicKey, tx.stake ,tx.recipientPublicKey))
     txs.foldLeft(initialStakeDistribution) { (currentStakeDistribution, tx) => {
       val newStakeDistribution = applyTransaction(tx, currentStakeDistribution)
       checkTxIntegrity(currentStakeDistribution, tx, newStakeDistribution) shouldBe true

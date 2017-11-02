@@ -34,11 +34,12 @@ object TransactionsGenerator {
   }
 
   def generateTxs(stakeDistribution: StakeDistribution, n: Int): List[Transaction] = {
+    require(n > 0, "Number of transactions must be positive")
     @tailrec
     def rec(stakeDistribution: StakeDistribution, n: Int, acc: List[Transaction]): List[Transaction] = {
-      val transaction = generateTx(stakeDistribution)
       if (n == 0) acc
       else {
+        val transaction = generateTx(stakeDistribution)
         val newStakeDistribution = applyTransaction(transaction, stakeDistribution)
         rec(newStakeDistribution, n - 1, transaction :: acc)
       }
