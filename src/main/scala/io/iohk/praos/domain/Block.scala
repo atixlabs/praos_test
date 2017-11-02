@@ -12,6 +12,7 @@ object Block {
     proof       : VrfProof,
     nonce       : (Seed, VrfProof))
 
+  /*
   // This function models the makeBlock function in the Praos Formalization.
   def apply(
     slotNumber        : SlotNumber,
@@ -24,6 +25,7 @@ object Block {
     val signature: Signature =
     Block(stakeholderState.state, slotNumber, transactions, isLeader, signature)
   }
+  */
 }
 
 case class Block(
