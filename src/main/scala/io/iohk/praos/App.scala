@@ -15,7 +15,11 @@ object App extends Logger {
     val (publicKey3, privateKey3) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder3 = StakeHolder(privateKey3, publicKey3)
     val stakeHolders = List(stakeholder1, stakeholder2, stakeholder3)
-    val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4)
+    val stakeDistribution = StakeDistribution(
+      stakeholder1.publicKey -> 5,
+      stakeholder2.publicKey -> 60,
+      stakeholder3.publicKey -> 4
+    )
     val env: Environment = Environment(
       stakeDistribution,
       epochLength = 20,
