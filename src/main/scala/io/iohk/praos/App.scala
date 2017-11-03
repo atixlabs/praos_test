@@ -18,11 +18,11 @@ object App extends Logger {
     val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4)
     val env: Environment = Environment(
       stakeDistribution,
-      epochLength = 10,
-      k = 2,
+      epochLength = 20,
+      k = 3,
       slotDurationInMilliseconds = 3000,
       timeProvider = new TimeProvider(initialTime = 0),
-      activeSlotCoefficient = 0.70,
+      activeSlotCoefficient = 0.30,
       initialNonce = generateNewRandomValue()
     )
     log.debug(s"[Main] - Setup Environment $env")
@@ -42,15 +42,16 @@ object App extends Logger {
     )
     // Init Protocol
     var genesis = GenesisBlock(env.initialStakeDistribution, env.initialNonce)
-    var slotInEpoch: SlotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
     // Run Protocol only one epoch
-    while (slotInEpoch.slotNumber < env.epochLength) {
+    (1 to env.epochLength).foreach { _ =>
+      val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
+      genesis = virtualGenesis.computeNewGenesis(blockchainState.fullBlockchain, slotInEpoch, previousGenesis = genesis)
       stakeHolders.foreach(stakeholder => {
         val isLeaderProof: Option[VerifiableRandomFunction#VrfProof] =
           ElectionManager(env.activeSlotCoefficient, vrf)
             .isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
         if (isLeaderProof.isDefined) {
-          log.debug(s"[Main] - Leader elected for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
+          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) ELECTED for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
           val transactions = TransactionsGenerator.generateTxs(stakeDistribution, 5)
           val newBlock: Block = blockFactory.makeBlock(
             slotInEpoch.slotNumber,
@@ -61,13 +62,13 @@ object App extends Logger {
             genesis.genesisNonce)
           val newChain: Blockchain = List(newBlock)
           blockchainState = ConsensusResolver.receiveChain(newChain, blockchainState)
-        }
+        } else
+          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) NOT elected for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
       })
       blockchainState = ConsensusResolver.pickMaxValid(blockchainState)
+      log.debug(s"[Main] - Blockchain: [${blockchainState.fullBlockchain.map(_.value.slotNumber).mkString("->")}]")
+      log.debug(s"[Main] - SLOT ${slotInEpoch.slotNumber} end in epoch ${slotInEpoch.epochNumber}")
       env.timeProvider.advance(env.slotDurationInMilliseconds)
-
-      slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      genesis = virtualGenesis.computeNewGenesis(blockchainState.fullBlockchain, slotInEpoch, previousGenesis = genesis)
     }
   }
 }

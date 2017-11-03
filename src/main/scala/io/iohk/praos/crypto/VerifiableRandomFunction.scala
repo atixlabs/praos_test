@@ -2,6 +2,7 @@ package io.iohk.praos.crypto
 
 import akka.util.ByteString
 
+import scala.math.abs
 
 trait VerifiableRandomFunction {
 
@@ -18,13 +19,14 @@ object VerifiableRandomFunction {
 
 
 /**
+  * TODO: Fixme!
   * This is a fake implementation that fullfills VerifiableRandomFunction properties
   */
 object VerifiableRandomFunctionStubImpl extends VerifiableRandomFunction {
 
   def prove(privateKey: Key, randomSeed: RandomValue): (RandomValue, VrfProof) =
-    (randomSeed, getPublicKeyFromPrivateKey(privateKey))
+    (abs(BigInt(PredefinedHasher("MD5").hash(getPublicKeyFromPrivateKey(privateKey) ++ ByteString(randomSeed)).toArray).toInt), getPublicKeyFromPrivateKey(privateKey))
 
   def verify(publicKey: Key, randomSeed: RandomValue, nonce: (RandomValue, VrfProof)): Boolean =
-    (randomSeed, publicKey) == nonce
+    (abs(BigInt(PredefinedHasher("MD5").hash(publicKey ++ ByteString(randomSeed)).toArray).toInt), publicKey) == nonce
 }
