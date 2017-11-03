@@ -25,7 +25,7 @@ object App extends Logger {
       activeSlotCoefficient = 0.30,
       initialNonce = generateNewRandomValue()
     )
-    log.debug(s"[Main] - Setup Environment $env")
+    log.debug(s"[Main] - Setup Environment: EpochLength: ${env.epochLength}, K: ${env.k}, active slot coefficient: ${env.activeSlotCoefficient}")
 
     val slotInEpochCalculator = SlotInEpochCalculator(
       epochLength = env.epochLength,

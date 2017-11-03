@@ -18,7 +18,8 @@ class TransactionGeneratorSpec  extends FlatSpec with Matchers {
     val positiveStakeForRecipient = finalStakeDistribution(tx.recipientPublicKey) >= 0
     val lessOrEqualStakeForSender = finalStakeDistribution(tx.senderPublicKey) == (initialStakeDistribution(tx.senderPublicKey) - tx.stake)
     val greaterOrEqualStakeForRecipient = finalStakeDistribution(tx.recipientPublicKey) == (initialStakeDistribution(tx.recipientPublicKey) + tx.stake)
-    positiveStakeForSender && positiveStakeForRecipient && lessOrEqualStakeForSender && greaterOrEqualStakeForRecipient
+    val senderEqualToRecipient = tx.senderPublicKey == tx.recipientPublicKey
+    positiveStakeForSender && positiveStakeForRecipient && (senderEqualToRecipient || (lessOrEqualStakeForSender && greaterOrEqualStakeForRecipient))
   }
 
   "TransactionGeneratorSpec" should "generate a valid transaction given a stakeholder distribution" in new TestSetup {
@@ -29,6 +30,7 @@ class TransactionGeneratorSpec  extends FlatSpec with Matchers {
 
   "TransactionGeneratorSpec" should "generate 5 consecutive transactions given a stakeholder distribution" in new TestSetup {
     val txs: List[Transaction] = TransactionsGenerator.generateTxs(initialStakeDistribution, 5)
+    txs.foreach(println(_))
     txs.foldLeft(initialStakeDistribution) { (currentStakeDistribution, tx) => {
       val newStakeDistribution = applyTransaction(tx, currentStakeDistribution)
       checkTxIntegrity(currentStakeDistribution, tx, newStakeDistribution) shouldBe true
