@@ -10,6 +10,7 @@ val dep = {
   val akkaVersion = "2.4.17"
 
   Seq(
+    "ch.qos.logback" % "logback-classic" % "1.1.9",
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
     "org.scalatest" %% "scalatest" % "3.0.1" % "test",
     "org.scalamock" %% "scalamock-scalatest-support" % "3.5.0" % "test",
