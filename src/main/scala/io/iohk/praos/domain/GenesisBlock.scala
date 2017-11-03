@@ -17,10 +17,11 @@ case class GenesisBlock(genesisDistribution: StakeDistribution, genesisNonce: Se
     *       GenesisBlocks are also used to store intermediate results when several blocks are applied in sequence.
     */
   def applyBlock(block: Block): GenesisBlock = {
-    val newGenesisDistribution = block.data.foldLeft(genesisDistribution)(
+    val unsignedBlock = block.value
+    val newGenesisDistribution = unsignedBlock.data.foldLeft(genesisDistribution)(
       (sd: StakeDistribution, tx: Transaction) => applyTransaction(tx, sd)
     )
-    val newGenesisNonce = combineSeeds(genesisNonce, block.nonce._1)
+    val newGenesisNonce = combineSeeds(genesisNonce, unsignedBlock.nonce._1)
     GenesisBlock(newGenesisDistribution, newGenesisNonce)
   }
 }

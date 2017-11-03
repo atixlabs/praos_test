@@ -1,8 +1,8 @@
 package io.iohk.praos
 
-import akka.util.ByteString
 import io.iohk.praos.domain._
-import io.iohk.praos.crypto.{VerifiableRandomFunctionStubImpl, VrfProof, generateNewRandomValue}
+import io.iohk.praos.crypto.{SignerImpl, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+import io.iohk.praos.util.TransactionsGenerator
 
 object App {
 
@@ -32,6 +32,9 @@ object App {
     )
     val virtualGenesis = VirtualGenesis(env.k)
 
+	val vrf = VerifiableRandomFunctionStubImpl
+    val blockFactory = BlockFactory(signer = SignerImpl, vrf = vrf)
+
     var blockchainState = BlockchainState(
       fullBlockchain = List.empty[Block],
       receivedChains = List.empty[Blockchain]
@@ -43,11 +46,18 @@ object App {
     // Run Protocol only one epoch
     while (slotInEpoch.slotNumber < env.epochLength) {
       stakeHolders.foreach(stakeholder => {
-        val isLeaderProof: Option[VrfProof] =
-          ElectionManager(env.activeSlotCoefficient, VerifiableRandomFunctionStubImpl)
+        val isLeaderProof: Option[VerifiableRandomFunction#VrfProof] =
+          ElectionManager(env.activeSlotCoefficient, vrf)
             .isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
         if (isLeaderProof.isDefined) {
-          val newBlock = null
+          val transactions = TransactionsGenerator.generateTxs(stakeDistribution, 5)
+          val newBlock: Block = blockFactory.makeBlock(
+            slotInEpoch.slotNumber,
+            isLeaderProof.get,
+            transactions,
+            blockchainState.maybeHeadBlockHash,
+            stakeholder,
+            genesis.genesisNonce)
           val newChain: Blockchain = List(newBlock)
           blockchainState = ConsensusResolver.receiveChain(newChain, blockchainState)
         }
