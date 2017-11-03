@@ -2,12 +2,12 @@ package io.iohk.praos
 
 import io.iohk.praos.domain._
 import io.iohk.praos.crypto.{SignerImpl, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
-import io.iohk.praos.util.TransactionsGenerator
+import io.iohk.praos.util.{TransactionsGenerator, Logger}
 
-object App {
+object App extends Logger {
 
   def main(args: Array[String]): Unit = {
-    // Setup an Stake Distribution
+    log.debug("[Main] - Start")
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = StakeHolder(privateKey1, publicKey1)
     val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
@@ -16,7 +16,6 @@ object App {
     val stakeholder3 = StakeHolder(privateKey3, publicKey3)
     val stakeHolders = List(stakeholder1, stakeholder2, stakeholder3)
     val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4)
-    // Setup Environment
     val env: Environment = Environment(
       stakeDistribution,
       epochLength = 10,
@@ -26,20 +25,21 @@ object App {
       activeSlotCoefficient = 0.70,
       initialNonce = generateNewRandomValue()
     )
+    log.debug(s"[Main] - Setup Environment $env")
+
     val slotInEpochCalculator = SlotInEpochCalculator(
       epochLength = env.epochLength,
       slotDurationInMilliseconds = env.slotDurationInMilliseconds
     )
     val virtualGenesis = VirtualGenesis(env.k)
 
-	val vrf = VerifiableRandomFunctionStubImpl
+	  val vrf = VerifiableRandomFunctionStubImpl
     val blockFactory = BlockFactory(signer = SignerImpl, vrf = vrf)
 
     var blockchainState = BlockchainState(
       fullBlockchain = List.empty[Block],
       receivedChains = List.empty[Blockchain]
     )
-
     // Init Protocol
     var genesis = GenesisBlock(env.initialStakeDistribution, env.initialNonce)
     var slotInEpoch: SlotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
@@ -50,6 +50,7 @@ object App {
           ElectionManager(env.activeSlotCoefficient, vrf)
             .isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
         if (isLeaderProof.isDefined) {
+          log.debug(s"[Main] - Leader elected for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
           val transactions = TransactionsGenerator.generateTxs(stakeDistribution, 5)
           val newBlock: Block = blockFactory.makeBlock(
             slotInEpoch.slotNumber,
