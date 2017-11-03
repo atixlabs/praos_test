@@ -25,10 +25,8 @@ package object domain {
       // TODO: Handle logic errors (i.e. that the transaction makes sense in the initial distribution)
       val resultingSenderStake = stakeDistribution(transaction.senderPublicKey) - transaction.stake
       val resultingRecipientStake = stakeDistribution(transaction.recipientPublicKey) + transaction.stake
-      val resultingStakeDistribution = stakeDistribution
-        .updated(transaction.senderPublicKey, resultingSenderStake)
-        .updated(transaction.recipientPublicKey, resultingRecipientStake)
-      resultingStakeDistribution
+      stakeDistribution + (transaction.senderPublicKey -> resultingSenderStake) +
+        (transaction.recipientPublicKey -> resultingRecipientStake)
     }
   }
 
