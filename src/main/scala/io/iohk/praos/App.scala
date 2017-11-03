@@ -1,7 +1,8 @@
 package io.iohk.praos
 
+import akka.util.ByteString
 import io.iohk.praos.domain._
-import io.iohk.praos.crypto.generateNewRandomValue
+import io.iohk.praos.crypto.{VerifiableRandomFunctionStubImpl, VrfProof, generateNewRandomValue}
 
 object App {
 
@@ -19,34 +20,43 @@ object App {
     val env: Environment = Environment(
       stakeDistribution,
       epochLength = 10,
+      k = 2,
       slotDurationInMilliseconds = 3000,
       timeProvider = new TimeProvider(initialTime = 0),
-      activeSlotCoefficient = 0.70
+      activeSlotCoefficient = 0.70,
+      initialNonce = generateNewRandomValue()
     )
     val slotInEpochCalculator = SlotInEpochCalculator(
       epochLength = env.epochLength,
       slotDurationInMilliseconds = env.slotDurationInMilliseconds
     )
-    var genesis = None
-    // Run Protocol
-    /* while (true) {
-      val slotInEpoch: SlotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      if (slotInEpoch.firstInEpoch) {
-       genesis = VirtualGenesis.generate(slotInEpoch, blockchain)
-      }
+    val virtualGenesis = VirtualGenesis(env.k)
+
+    var blockchainState = BlockchainState(
+      fullBlockchain = List.empty[Block],
+      receivedChains = List.empty[Blockchain]
+    )
+
+    // Init Protocol
+    var genesis = GenesisBlock(env.initialStakeDistribution, env.initialNonce)
+    var slotInEpoch: SlotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
+    // Run Protocol only one epoch
+    while (slotInEpoch.slotNumber < env.epochLength) {
       stakeHolders.foreach(stakeholder => {
-        val isLeaderProof: Option[VrfProof]) =
-          ElectionManager(env.activeSlotCoefficient, VerifiableRandomFunctionStubImpl).isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
+        val isLeaderProof: Option[VrfProof] =
+          ElectionManager(env.activeSlotCoefficient, VerifiableRandomFunctionStubImpl)
+            .isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
         if (isLeaderProof.isDefined) {
-          val newBlock: Block = BlockGenerator.generateBlock(stakeholder, isLeaderProof, slotInEpoch, genesis, blockchain)
-          // TODO step1: If there is a new block added to the Blockchain
-          // TODO step2: Emit the new block to the channel
+          val newBlock = null
+          val newChain: Blockchain = List(newBlock)
+          blockchainState = ConsensusResolver.receiveChain(newChain, blockchainState)
         }
       })
-      // In parallel
-      // TODO: Receive chains (new blocks) and verify them, uptating the current state.
-
+      blockchainState = ConsensusResolver.pickMaxValid(blockchainState)
       env.timeProvider.advance(env.slotDurationInMilliseconds)
-    } */
+
+      slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
+      genesis = virtualGenesis.computeNewGenesis(blockchainState.fullBlockchain, slotInEpoch, previousGenesis = genesis)
+    }
   }
 }
