@@ -47,4 +47,3 @@ package object crypto {
 
   type Signature = ByteString
 }
-

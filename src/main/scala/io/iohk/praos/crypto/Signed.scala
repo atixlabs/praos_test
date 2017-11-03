@@ -1,4 +1,6 @@
 package io.iohk.praos.crypto
 
 
-case class Signed[T](value: T, signature: Signature)
+case class Signed[T <: Serializable](value: T, signature: Signature) extends Serializable {
+  override def toString = value.toString
+}

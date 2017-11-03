@@ -1,6 +1,7 @@
 package io.iohk.praos
 
-import io.iohk.praos.crypto.{Key, Signature, Signed}
+import akka.util.ByteString
+import io.iohk.praos.crypto._
 
 import scala.collection.immutable.Map
 
@@ -38,7 +39,13 @@ package object domain {
 
   type Block = Signed[UnsignedBlock]
   def Block(unsignedBlock: UnsignedBlock, signature: Signature) = Signed[UnsignedBlock](unsignedBlock, signature)
+  def blockHash(block: Block): Hasher#Digest = PredefinedHasher("MD5").hash(ByteString(block.value.slotNumber))
 
+  /**
+    *  Is important denote that the Haskell specification variate from the standard definition of Blockchain.
+    *  Here its defined as a list of blocks, and not referred to the "unique" blockchain inself.
+    *  @note For each blockchain, the order is assume from oldest to latest.
+    */
   type Blockchain = List[Block]
   def Blockchain(bs: Block*) = List[Block](bs: _*)
 

@@ -9,16 +9,16 @@ case class BlockFactory(signer: Signer, vrf: VerifiableRandomFunction) {
     slotNumber        : SlotNumber,
     isLeader          : VerifiableRandomFunction#VrfProof,
     transactions      : List[Transaction],
-    stakeholderState  : StakeholderState): Block = {
-
-    val nonce = stakeholderState.genesisCurrent.genesisNonce
+    prevBlockHash     : Option[Hasher#Digest],
+    stakeholder       : StakeHolder,
+    genesisNonce      : Seed): Block = {
 
     // TODO: Use slotToSeed when implemented.
-    val seed = combineSeeds(combineSeeds(nonce, slotNumber), seedNonce)
+    val seed = combineSeeds(combineSeeds(genesisNonce, slotNumber), seedNonce)
 
-    val blockNonce = vrf.prove(stakeholderState.privateKey, seed)
-    val unsignedBlock = UnsignedBlock(stakeholderState.state, slotNumber, transactions, isLeader, blockNonce)
+    val blockNonce = vrf.prove(stakeholder.privateKey, seed)
+    val unsignedBlock = UnsignedBlock(prevBlockHash, slotNumber, transactions, isLeader, blockNonce)
 
-    signer.signedWith(unsignedBlock, stakeholderState.privateKey)
+    signer.signedWith(unsignedBlock, stakeholder.privateKey)
   }
 }

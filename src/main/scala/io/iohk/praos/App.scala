@@ -1,18 +1,19 @@
 package io.iohk.praos
 
 import io.iohk.praos.domain._
-import io.iohk.praos.crypto.generateNewRandomValue
+import io.iohk.praos.crypto.{SignerImpl, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+//import io.iohk.praos.util.TransactionsGenerator
 
 object App {
 
   def main(args: Array[String]): Unit = {
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder1 = StakeHolder(publicKey1, privateKey1)
+    val stakeholder1 = StakeHolder(privateKey1, publicKey1)
     val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder2 = StakeHolder(publicKey2, privateKey2)
+    val stakeholder2 = StakeHolder(privateKey2, publicKey2)
     val (publicKey3, privateKey3) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder3 = StakeHolder(publicKey3, privateKey3)
+    val stakeholder3 = StakeHolder(privateKey3, publicKey3)
     val stakeHolders = List(stakeholder1, stakeholder2, stakeholder3)
     val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4)
     // Setup Environment
@@ -27,18 +28,32 @@ object App {
       epochLength = env.epochLength,
       slotDurationInMilliseconds = env.slotDurationInMilliseconds
     )
-    var genesis = None
+
+    val vrf = VerifiableRandomFunctionStubImpl
+    val blockFactory = BlockFactory(signer = SignerImpl, vrf = vrf)
+    var genesis = null
+    //var stakeDistribution = null
+    //var blockchainState = null
+
     // Run Protocol
-    /* while (true) {
+    /*
+     while (true) {
       val slotInEpoch: SlotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
       if (slotInEpoch.firstInEpoch) {
        genesis = VirtualGenesis.generate(slotInEpoch, blockchain)
       }
       stakeHolders.foreach(stakeholder => {
         val isLeaderProof: Option[VrfProof]) =
-          ElectionManager(env.activeSlotCoefficient, VerifiableRandomFunctionStubImpl).isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
+          ElectionManager(env.activeSlotCoefficient, vrf).isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
         if (isLeaderProof.isDefined) {
-          val newBlock: Block = BlockGenerator.generateBlock(stakeholder, isLeaderProof, slotInEpoch, genesis, blockchain)
+          val transactions = TransactionsGenerator.generateTxs(stakeDistribution, 5)
+          val newBlock: Block = blockFactory.makeBlock(
+            slotInEpoch.slotNumber,
+            isLeaderProof.get,
+            transactions,
+            blockChainState.maybeHeadBlockHash,
+            stakeholder,
+            genesis.genesisNonce)
           // TODO step1: If there is a new block added to the Blockchain
           // TODO step2: Emit the new block to the channel
         }

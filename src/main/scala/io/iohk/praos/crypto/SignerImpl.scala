@@ -15,7 +15,7 @@ object SignerImpl extends Signer {
     Signed[T](data, signature)
   }
 
-  override def stripSignature[T](signedData: Signed[T]): (Key, T) = {
+  override def stripSignature[T <: Serializable](signedData: Signed[T]): (Key, T) = {
     val (key, _) = SignatureProviderImpl.splitSignature(signedData.signature)
     (key, signedData.value)
   }
