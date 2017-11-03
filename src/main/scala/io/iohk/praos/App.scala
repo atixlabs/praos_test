@@ -2,10 +2,12 @@ package io.iohk.praos
 
 import io.iohk.praos.domain._
 import io.iohk.praos.crypto.generateNewRandomValue
+import io.iohk.praos.util.Logger
 
-object App {
+object App extends Logger {
 
   def main(args: Array[String]): Unit = {
+    log.debug("[Main] Start Protocol Simulation")
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = StakeHolder(privateKey1, publicKey1)
