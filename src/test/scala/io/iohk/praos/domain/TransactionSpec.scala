@@ -19,26 +19,17 @@ class TransactionSpec extends FlatSpec with GivenWhenThen with Matchers {
   val publicKey3: Key = akka.util.ByteString("3")
 
   // A stake distribution assigning 10 to U1, 2 to U2 and 8 to U3.
-  val stakeDistribution = StakeDistribution(publicKey1 -> 10, publicKey2 -> 2, publicKey3 -> 8)
+  val stakeDistribution = StakeDistributionImpl(Map(publicKey1 -> 10, publicKey2 -> 2, publicKey3 -> 8))
 
   // A transaction transferring a stake of 3 from U1 to U2.
   val transaction = Transaction(publicKey1, publicKey2, 3)
 
   // The resulting stake distribution of applying "transaction" to "stakeDistribution".
-  val resultingStakeDistribution = applyTransaction(transaction, stakeDistribution)
+  val resultingStakeDistribution = stakeDistribution.applyTransaction(transaction)
 
-  "The stakeholder U1 holding a stake of 10" should "have a resulting stake of 7" in {
-    When("a transaction transferring a stake of 3 from U1 to U2 is applied")
-    resultingStakeDistribution(publicKey1) shouldBe 7
-  }
-
-  "The stakeholder U2 holding a stake of 2" should "have a resulting stake of 5" in {
-    When("a transaction transferring a stake of 3 from U1 to U2 is applied")
-    resultingStakeDistribution(publicKey2) shouldBe 5
-  }
-
-  "A well-formed transaction" should "preserve the total stake across stake distributions" in {
-    val resultingStakeDistributionTotalStake = resultingStakeDistribution.values.sum
-    resultingStakeDistributionTotalStake shouldBe 20
+  "Transaction" should "transfer stake when applied" in {
+    resultingStakeDistribution.stakeOf(publicKey1) shouldBe 7
+    resultingStakeDistribution.stakeOf(publicKey2) shouldBe 5
+    resultingStakeDistribution.totalStake shouldBe 20
   }
 }

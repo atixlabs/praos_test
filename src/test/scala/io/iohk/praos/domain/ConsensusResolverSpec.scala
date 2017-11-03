@@ -6,15 +6,6 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ConsensusResolverSpec extends FlatSpec with Matchers {
 
-  def generateDummyBlock(slotNumber: SlotNumber, state: Option[ByteString]) = Block(
-    state = state,
-    slotNumber = slotNumber,
-    data = List.empty,
-    proof = VrfProof(random = 0, proof = ByteString.empty),
-    nonce = (0, VrfProof(random = 0, proof = ByteString.empty)),
-    signature = ByteString("dummy sign")
-  )
-
   "Given an initial empty blockchain and a received chain with a consecutive block, a ConsensusResolver" should
     "pick the received chain as the current blockchain" in {
 
@@ -25,7 +16,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val block1 = generateDummyBlock(slotNumber = 1, state = None)
     val newChain = List(block1)
 
-    val newState = ConsensusResolver.receiveChain(newChain, initialState)
+    val newState = BlockchainState.receiveChain(initialState, newChain)
     val finalState = ConsensusResolver.pickMaxValid(newState)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
@@ -42,7 +33,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val block = generateDummyBlock(slotNumber = 1, state = Some(ByteString(1)))
     val newChain = List(block)
 
-    val newState = ConsensusResolver.receiveChain(newChain, initialState)
+    val newState = BlockchainState.receiveChain(initialState, newChain)
     val finalState = ConsensusResolver.pickMaxValid(newState)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual false
@@ -61,7 +52,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val block3 =  generateDummyBlock(slotNumber = 3, state = Some(block2.blockHash))
     val newChain = List(block3)
 
-    val newState = ConsensusResolver.receiveChain(newChain, initialState)
+    val newState = BlockchainState.receiveChain(initialState, newChain)
     val finalState = ConsensusResolver.pickMaxValid(newState)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
@@ -82,7 +73,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val block4 =  generateDummyBlock(slotNumber = 4, state = Some(block3.blockHash))
     val newChain = List(block4)
 
-    val newState = ConsensusResolver.receiveChain(newChain, initialState)
+    val newState = BlockchainState.receiveChain(initialState, newChain)
     val finalState = ConsensusResolver.pickMaxValid(newState)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
@@ -104,11 +95,20 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val newChain1 = List(block3)
     val newChain2 = List(block4)
 
-    val updatedState1 = ConsensusResolver.receiveChain(newChain1, initialState)
-    val updatedState2 =  ConsensusResolver.receiveChain(newChain2, updatedState1)
+    val updatedState1 = BlockchainState.receiveChain(initialState, newChain1)
+    val updatedState2 = BlockchainState.receiveChain(updatedState1, newChain2)
     val finalState = ConsensusResolver.pickMaxValid(updatedState2)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
     finalState.maybeHeadBlockHash.get shouldEqual block3.blockHash
   }
+
+  def generateDummyBlock(slotNumber: SlotNumber, state: Option[ByteString]) = Block(
+    state = state,
+    slotNumber = slotNumber,
+    data = List.empty,
+    proof = VrfProof(random = 0, proof = ByteString.empty),
+    nonce = (0, VrfProof(random = 0, proof = ByteString.empty)),
+    signature = ByteString("dummy sign")
+  )
 }

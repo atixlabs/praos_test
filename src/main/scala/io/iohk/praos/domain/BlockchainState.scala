@@ -10,4 +10,11 @@ case class BlockchainState(fullBlockchain: Blockchain, receivedChains: List[Bloc
   lazy val maybeHeadBlockHash: Option[ByteString] = fullBlockchain.lastOption.map(_.blockHash)
 }
 
+object BlockchainState {
+  def receiveChain(state: BlockchainState, newChain: Blockchain): BlockchainState = {
+    require(newChain.nonEmpty, "New Chain should not be empty")
+    state.copy(receivedChains = newChain +: state.receivedChains)
+  }
+}
+
 

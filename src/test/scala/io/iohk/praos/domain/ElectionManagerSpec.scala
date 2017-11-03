@@ -1,7 +1,8 @@
+package io.iohk.praos.domain
+
 import org.scalatest.{FlatSpec, Matchers}
 import io.iohk.praos.crypto
 import io.iohk.praos.crypto.{VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
-import io.iohk.praos.domain._
 
 class ElectionManagerSpec extends FlatSpec with Matchers {
 
@@ -14,7 +15,7 @@ class ElectionManagerSpec extends FlatSpec with Matchers {
 
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = StakeHolder(privateKey1, publicKey1)
-    val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 10)
+    val stakeDistribution = StakeDistributionImpl(Map(stakeholder1.publicKey -> 10))
     val genesisNonce = generateNewRandomValue()
     val genesis = GenesisBlock(stakeDistribution, genesisNonce)
     val slotInEpoch = SlotInEpoch(epochNumber = 1, slotNumber = 1, firstInEpoch = true)
@@ -36,7 +37,7 @@ class ElectionManagerSpec extends FlatSpec with Matchers {
     val stakeholder1 = StakeHolder(privateKey1, publicKey1)
     val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder2 = StakeHolder(privateKey2, publicKey2)
-    val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 0, stakeholder2.publicKey -> 5)
+    val stakeDistribution = StakeDistributionImpl(Map(stakeholder1.publicKey -> 0, stakeholder2.publicKey -> 5))
     val genesisNonce = generateNewRandomValue()
     val genesis = GenesisBlock(stakeDistribution, genesisNonce)
     val slotInEpoch = SlotInEpoch(epochNumber = 1, slotNumber = 1, firstInEpoch = true)

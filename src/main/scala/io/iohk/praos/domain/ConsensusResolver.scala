@@ -1,9 +1,24 @@
 package io.iohk.praos.domain
 
-object ConsensusResolver {
+trait ConsensusResolver {
+  def pickMaxValid(state: BlockchainState): BlockchainState
+}
 
-  def receiveChain(newChain: Blockchain, state: BlockchainState): BlockchainState = {
-    BlockchainState(state.fullBlockchain, state.receivedChains :+ newChain)
+
+object ConsensusResolver extends ConsensusResolver {
+
+  /**
+    * @return The new BlockchainState, with the current max valid blockchain and without received chains.
+    */
+  def pickMaxValid(state: BlockchainState): BlockchainState = {
+    val validBlockChains: List[Option[Blockchain]] =
+      state.receivedChains.map(receivedChain => join(state.fullBlockchain, receivedChain))
+
+    val maxBlockchain = validBlockChains.foldLeft(state.fullBlockchain) {
+      case (currentMaxBlockchain, Some(maybeBlockchain)) if maybeBlockchain.length > currentMaxBlockchain.length => maybeBlockchain
+      case (currentMaxBlockchain, _) => currentMaxBlockchain
+    }
+    BlockchainState(maxBlockchain, List.empty[Blockchain])
   }
 
   /**
@@ -27,16 +42,4 @@ object ConsensusResolver {
     }
   }
 
-  /**
-    * @return The new BlockchainState, with the current max valid blockchain and without received chains.
-    */
-  def pickMaxValid(state: BlockchainState): BlockchainState = {
-    val validBlockChains: List[Option[Blockchain]] = state.receivedChains
-      .map(receivedChain => join(state.fullBlockchain, receivedChain))
-    val maxBlockchain = validBlockChains.foldLeft(state.fullBlockchain){ (currentMaxBlockchain, maybeBlockchain) =>
-      if (maybeBlockchain.isDefined && maybeBlockchain.get.length > currentMaxBlockchain.length) maybeBlockchain.get
-      else currentMaxBlockchain
-    }
-    BlockchainState(maxBlockchain, List.empty[Blockchain])
-  }
 }
