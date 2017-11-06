@@ -4,8 +4,9 @@ package io.iohk.praos
 import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
 import io.iohk.praos.domain.ledger.{ConsensusResolver, LedgerImpl}
 import io.iohk.praos.util.TransactionsGenerator*/
+import io.iohk.praos.util.Logger
 
-object App {
+object App extends Logger{
 
   def main(args: Array[String]): Unit = ??? /*{
     // Setup an Stake Distribution
