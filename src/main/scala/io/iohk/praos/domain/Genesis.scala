@@ -9,4 +9,4 @@ import io.iohk.praos.crypto.Seed
   * @param genesisDistribution The stake distribution to be used.
   * @param genesisNonce        The nonce to be used.
   */
-case class GenesisBlock(genesisDistribution: StakeDistribution, genesisNonce: Seed)
+case class Genesis(genesisDistribution: StakeDistribution, genesisNonce: Seed)

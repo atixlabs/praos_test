@@ -1,4 +1,6 @@
-package io.iohk.praos.domain
+package io.iohk.praos.domain.ledger
+
+import io.iohk.praos.domain.{Blockchain, BlockchainState}
 
 trait ConsensusResolver {
   def pickMaxValid(state: BlockchainState): BlockchainState

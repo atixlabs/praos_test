@@ -8,8 +8,8 @@ case class Block(
   state       : Option[Hasher#Digest],
   slotNumber  : SlotNumber,
   data        : List[Transaction],
-  proof       : VrfProof,
-  nonce       : (Seed, VrfProof),
+  proof       : VerifiableRandomFunction#VrfProof,
+  nonce       : Seed,
   signature   : Signature) {
 
   // TODO: Implement it

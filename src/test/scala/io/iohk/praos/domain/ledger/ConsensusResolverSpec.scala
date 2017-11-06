@@ -1,7 +1,7 @@
-package io.iohk.praos.domain
+package io.iohk.praos.domain.ledger
 
 import akka.util.ByteString
-import io.iohk.praos.crypto.{VrfProof}
+import io.iohk.praos.domain.{Block, Blockchain, BlockchainState, SlotNumber}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ConsensusResolverSpec extends FlatSpec with Matchers {
@@ -81,7 +81,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
   }
 
   "Given a initial blockchain with two consecutive blocks, and two received chain with one consecutive block, a ConsensusResolver" should
-    "pick as a max valid, the blockchain concatenate with the first received chain" in {
+    "pick as a max valid, the blockchain concatenate with the last received chain" in {
 
     val block1 = generateDummyBlock(slotNumber = 1, state = None)
     val block2 = generateDummyBlock(slotNumber = 2, state = Some(block1.blockHash))
@@ -100,15 +100,15 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val finalState = ConsensusResolver.pickMaxValid(updatedState2)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
-    finalState.maybeHeadBlockHash.get shouldEqual block3.blockHash
+    finalState.maybeHeadBlockHash.get shouldEqual block4.blockHash
   }
 
   def generateDummyBlock(slotNumber: SlotNumber, state: Option[ByteString]) = Block(
     state = state,
     slotNumber = slotNumber,
     data = List.empty,
-    proof = VrfProof(random = 0, proof = ByteString.empty),
-    nonce = (0, VrfProof(random = 0, proof = ByteString.empty)),
+    proof = ByteString.empty,
+    nonce = 0,
     signature = ByteString("dummy sign")
   )
 }
