@@ -14,10 +14,7 @@ package object crypto {
   // Dummy implementation to simulate a public-private key schema.
   val keyLength = 32
 
-  def genKey = (s: RandomValue, length: Int) => ByteString(Array.fill(length)(s.toByte))
-
-  def XOR(x: ByteString, y: ByteString): ByteString =
-    ByteString((x zip y).map(elements => (elements._1 ^ elements._2).toByte).toArray)
+  private def genKey = (s: RandomValue, length: Int) => ByteString(Array.fill(length)(s.toByte))
 
   def generateNewRandomValue(): RandomValue = abs(Random.nextInt())
 
@@ -43,7 +40,7 @@ package object crypto {
   def combineSeeds(x: Seed, y: Seed): Seed = abs(x + y)
 
   // TODO: Change to a realistic value.
-  def seedNonce: Seed = 123
+  val SeedNonce: Seed = 123
 
   type Signature = ByteString
 }

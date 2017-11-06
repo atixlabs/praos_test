@@ -14,7 +14,7 @@ case class BlockFactory(signer: Signer, vrf: VerifiableRandomFunction) {
     genesisNonce      : Seed): Block = {
 
     // TODO: Use slotToSeed when implemented.
-    val seed = combineSeeds(combineSeeds(genesisNonce, slotNumber), seedNonce)
+    val seed = combineSeeds(combineSeeds(genesisNonce, slotNumber), SeedNonce)
 
     val blockNonce = vrf.prove(stakeholder.privateKey, seed)
     val unsignedBlock = UnsignedBlock(prevBlockHash, slotNumber, transactions, isLeader, blockNonce)

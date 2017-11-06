@@ -4,7 +4,7 @@ import akka.util.ByteString
 
 
 object SignerImpl extends Signer {
-  override def signedWith[T <: Serializable](data: T, privateKey: Key): Signed[T] = {
+  override def signedWith[T](data: T, privateKey: Key): Signed[T] = {
     // FIXME: Hasher, cipher and signature provider are hard-coded for simplicity.
     val publicKey = getPublicKeyFromPrivateKey(privateKey)
     val hasher = PredefinedHasher("MD5")
@@ -15,7 +15,7 @@ object SignerImpl extends Signer {
     Signed[T](data, signature)
   }
 
-  override def stripSignature[T <: Serializable](signedData: Signed[T]): (Key, T) = {
+  override def stripSignature[T](signedData: Signed[T]): (Key, T) = {
     val (key, _) = SignatureProviderImpl.splitSignature(signedData.signature)
     (key, signedData.value)
   }

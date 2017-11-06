@@ -3,7 +3,6 @@ package io.iohk.praos
 import io.iohk.praos.domain._
 import io.iohk.praos.crypto.{SignerImpl, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
 import io.iohk.praos.util.Logger
-//import io.iohk.praos.util.TransactionsGenerator
 
 object App extends Logger {
 
