@@ -7,5 +7,5 @@ import akka.util.ByteString
   * @param receivedChains: Maintains the list of blockchains received in the epoch
   */
 case class BlockchainState(fullBlockchain: Blockchain, receivedChains: List[Blockchain]) {
-  lazy val maybeHeadBlockHash: Option[ByteString] = fullBlockchain.lastOption.map(blockHash(_))
+  lazy val maybeHeadBlockHash: Option[ByteString] = fullBlockchain.lastOption.map(_.hashValue)
 }

@@ -1,23 +1,23 @@
 package io.iohk.praos.domain
 
 import akka.util.ByteString
-import io.iohk.praos.crypto.{Signer, SignerImpl, Key}
+import io.iohk.praos.crypto.Key
 import org.scalatest.{FlatSpec, Matchers}
 
 class ConsensusResolverSpec extends FlatSpec with Matchers {
 
   val privateKey: Key = ByteString("abc")
-  val signer: Signer = SignerImpl
 
   def generateDummyBlock(slotNumber: SlotNumber, state: Option[ByteString], privateKey: Key) = {
-    val unsignedBlock = UnsignedBlock(
+    val unsignedBlock = Block(
       state,
       slotNumber,
       data = List.empty,
       proof = ByteString.empty,
-      nonce = (0, ByteString.empty)
+      nonce = (0, ByteString.empty),
+      signature = null
     )
-    signer.signedWith(unsignedBlock, privateKey)
+    BlockSigner.signedWith(unsignedBlock, privateKey)
   }
 
   "Given an initial empty blockchain and a received chain with a consecutive block, a ConsensusResolver" should
@@ -32,7 +32,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val finalState = ConsensusResolver.pickMaxValid(newState)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
-    finalState.maybeHeadBlockHash.get shouldEqual blockHash(block1)
+    finalState.maybeHeadBlockHash.get shouldEqual block1.hashValue
   }
 
   "Given an initial empty blockchain and a received chain with nonconsecutive block, a ConsensusResolver" should
@@ -55,55 +55,55 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     "pick as a max valid, the blockchain concatenate with the received chain" in {
 
     val block1 = generateDummyBlock(slotNumber = 1, state = None, privateKey = privateKey)
-    val block2 = generateDummyBlock(slotNumber = 2, state = Some(blockHash(block1)), privateKey = privateKey)
+    val block2 = generateDummyBlock(slotNumber = 2, state = Some(block1.hashValue), privateKey = privateKey)
 
     val initialState = BlockchainState(
       fullBlockchain = List(block1, block2),
       receivedChains = List.empty[Blockchain])
 
-    val block3 = generateDummyBlock(slotNumber = 3, state = Some(blockHash(block2)), privateKey = privateKey)
+    val block3 = generateDummyBlock(slotNumber = 3, state = Some(block2.hashValue), privateKey = privateKey)
     val newChain = List(block3)
 
     val newState = ConsensusResolver.receiveChain(newChain, initialState)
     val finalState = ConsensusResolver.pickMaxValid(newState)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
-    finalState.maybeHeadBlockHash.get shouldEqual blockHash(block3)
+    finalState.maybeHeadBlockHash.get shouldEqual block3.hashValue
   }
 
   "Given a initial blockchain with two consecutive blocks, and a received chain with nonconsecutive block, a ConsensusResolver" should
     "pick as a max valid, the initial blockchain" in {
 
     val block1 = generateDummyBlock(slotNumber = 1, state = None, privateKey = privateKey)
-    val block2 = generateDummyBlock(slotNumber = 2, state = Some(blockHash(block1)), privateKey = privateKey)
+    val block2 = generateDummyBlock(slotNumber = 2, state = Some(block1.hashValue), privateKey = privateKey)
 
     val initialState = BlockchainState(
       fullBlockchain = List(block1, block2),
       receivedChains = List.empty[Blockchain])
 
-    val block3 = generateDummyBlock(slotNumber = 3, state = Some(blockHash(block2)), privateKey = privateKey)
-    val block4 = generateDummyBlock(slotNumber = 4, state = Some(blockHash(block3)), privateKey = privateKey)
+    val block3 = generateDummyBlock(slotNumber = 3, state = Some(block2.hashValue), privateKey = privateKey)
+    val block4 = generateDummyBlock(slotNumber = 4, state = Some(block3.hashValue), privateKey = privateKey)
     val newChain = List(block4)
 
     val newState = ConsensusResolver.receiveChain(newChain, initialState)
     val finalState = ConsensusResolver.pickMaxValid(newState)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
-    finalState.maybeHeadBlockHash.get shouldEqual blockHash(block2)
+    finalState.maybeHeadBlockHash.get shouldEqual block2.hashValue
   }
 
   "Given a initial blockchain with two consecutive blocks, and two received chain with one consecutive block, a ConsensusResolver" should
     "pick as a max valid, the blockchain concatenate with the first received chain" in {
 
     val block1 = generateDummyBlock(slotNumber = 1, state = None, privateKey = privateKey)
-    val block2 = generateDummyBlock(slotNumber = 2, state = Some(blockHash(block1)), privateKey = privateKey)
+    val block2 = generateDummyBlock(slotNumber = 2, state = Some(block1.hashValue), privateKey = privateKey)
 
     val initialState = BlockchainState(
       fullBlockchain = List(block1, block2),
       receivedChains = List.empty[Blockchain])
 
-    val block3 = generateDummyBlock(slotNumber = 3, state = Some(blockHash(block2)), privateKey = privateKey)
-    val block4 = generateDummyBlock(slotNumber = 4, state = Some(blockHash(block2)), privateKey = privateKey)
+    val block3 = generateDummyBlock(slotNumber = 3, state = Some(block2.hashValue), privateKey = privateKey)
+    val block4 = generateDummyBlock(slotNumber = 4, state = Some(block2.hashValue), privateKey = privateKey)
     val newChain1 = List(block3)
     val newChain2 = List(block4)
 
@@ -112,6 +112,6 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     val finalState = ConsensusResolver.pickMaxValid(updatedState2)
 
     finalState.maybeHeadBlockHash.isDefined shouldEqual true
-    finalState.maybeHeadBlockHash.get shouldEqual blockHash(block3)
+    finalState.maybeHeadBlockHash.get shouldEqual block3.hashValue
   }
 }

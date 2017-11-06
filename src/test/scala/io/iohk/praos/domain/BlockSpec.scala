@@ -21,16 +21,14 @@ class BlockSpec extends FlatSpec with Matchers {
   val transaction1 = Transaction(publicKey1, publicKey2, 3)
   val transaction2 = Transaction(publicKey2, publicKey1, 1)
 
-  val prevBlockHash: Hasher#Digest = akka.util.ByteString("abc")
-  val state = Some(prevBlockHash)
-  val slotNumber: SlotNumber = 123
+  val state = None
+  val slotNumber: SlotNumber = 1
   val data = List(transaction1, transaction2)
   val proof = akka.util.ByteString("def")
   val seed: Seed = 1
   val blockNonce = (seed, akka.util.ByteString("ghi"))
   val signature: Signature = akka.util.ByteString("jkl")
-  val unsignedBlock = UnsignedBlock(state, slotNumber, data, proof, blockNonce)
-  val block = Block(unsignedBlock, signature)
+  val block = Block(state, slotNumber, data, proof, blockNonce, signature)
 
   "The application of a block to an initial genesis block" should
     "apply all transactions in the block and calculate the new nonce" in {

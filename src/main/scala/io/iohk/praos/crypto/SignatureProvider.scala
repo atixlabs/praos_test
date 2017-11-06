@@ -10,7 +10,7 @@ trait SignatureProvider {
   def getSignature(data: ByteString, privateKey: Key): Signature
 
   /**
-    * @return (publicKey, data)
+    * @return publicKey
     */
-  def splitSignature(signature: Signature): (Key, ByteString)
+  def getPublicKeyFromSignature(signature: Signature): Key
 }

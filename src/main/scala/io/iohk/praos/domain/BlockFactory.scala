@@ -3,7 +3,7 @@ package io.iohk.praos.domain
 import io.iohk.praos.crypto._
 
 
-case class BlockFactory(signer: Signer, vrf: VerifiableRandomFunction) {
+case class BlockFactory(vrf: VerifiableRandomFunction) {
 
   def makeBlock(
     slotNumber        : SlotNumber,
@@ -17,8 +17,8 @@ case class BlockFactory(signer: Signer, vrf: VerifiableRandomFunction) {
     val seed = combineSeeds(combineSeeds(genesisNonce, slotNumber), SeedNonce)
 
     val blockNonce = vrf.prove(stakeholder.privateKey, seed)
-    val unsignedBlock = UnsignedBlock(prevBlockHash, slotNumber, transactions, isLeader, blockNonce)
+    val unsignedBlock = Block(prevBlockHash, slotNumber, transactions, isLeader, blockNonce, null)
 
-    signer.signedWith(unsignedBlock, stakeholder.privateKey)
+    BlockSigner.signedWith(unsignedBlock, stakeholder.privateKey)
   }
 }

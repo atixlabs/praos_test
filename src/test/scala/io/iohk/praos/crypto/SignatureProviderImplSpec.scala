@@ -14,13 +14,13 @@ class SignatureProviderImplSpec extends FlatSpec with Matchers {
     def serialize(data: String): ByteString = ByteString(data)
   }
 
-  "A signature for a message" should "be split into the PK and message when using the SK" in new TestSetup {
-    signatureProvider.splitSignature(signatureProvider.getSignature(message, userPrivateKey)) should be
-      (userPublicKey, message)
+  "The PK" should "be obtained from a signature when using the SK for signing the message" in new TestSetup {
+    signatureProvider.getPublicKeyFromSignature(signatureProvider.getSignature(message, userPrivateKey)) shouldBe
+        userPublicKey
   }
 
-  "A signature for a message" should "NOT be split into the PK and message when using the PK" in new TestSetup {
-    signatureProvider.splitSignature(signatureProvider.getSignature(message, userPublicKey)) shouldNot be
-      (userPublicKey, message)
+  "The PK" should "NOT be obtained from a signature when using the PK for signing the message" in new TestSetup {
+    signatureProvider.getPublicKeyFromSignature(signatureProvider.getSignature(message, userPublicKey)) should not be
+      userPublicKey
   }
 }

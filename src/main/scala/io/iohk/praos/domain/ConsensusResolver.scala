@@ -21,7 +21,7 @@ object ConsensusResolver {
   private def join(baseBlockchain: Blockchain, possibleExtension: Blockchain): Option[Blockchain] = {
     possibleExtension match {
       case Nil => Some(baseBlockchain)
-      case possibleExtensionHead :: _ if baseBlockchain.lastOption.map(blockHash(_)) == possibleExtensionHead.value.state =>
+      case possibleExtensionHead :: _ if baseBlockchain.lastOption.map(_.hashValue) == possibleExtensionHead.state =>
         Some(baseBlockchain ++ possibleExtension)
       case _ => None
     }

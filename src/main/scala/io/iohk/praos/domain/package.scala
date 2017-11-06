@@ -1,6 +1,5 @@
 package io.iohk.praos
 
-import akka.util.ByteString
 import io.iohk.praos.crypto._
 
 import scala.collection.immutable.Map
@@ -38,10 +37,6 @@ package object domain {
   type RelativeStake = Double
 
   type SlotNumber = Int
-
-  type Block = Signed[UnsignedBlock]
-  def Block(unsignedBlock: UnsignedBlock, signature: Signature) = Signed[UnsignedBlock](unsignedBlock, signature)
-  def blockHash(block: Block): Hasher#Digest = PredefinedHasher("MD5").hash(ByteString(block.value.slotNumber))
 
   /**
     *  Is important denote that the Haskell specification variate from the standard definition of Blockchain.

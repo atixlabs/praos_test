@@ -1,7 +1,7 @@
 package io.iohk.praos
 
 import io.iohk.praos.domain._
-import io.iohk.praos.crypto.{SignerImpl, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+import io.iohk.praos.crypto.{VerifiableRandomFunctionStubImpl, generateNewRandomValue}
 import io.iohk.praos.util.Logger
 
 object App extends Logger {
@@ -31,7 +31,7 @@ object App extends Logger {
     )
 
     val vrf = VerifiableRandomFunctionStubImpl
-    val blockFactory = BlockFactory(signer = SignerImpl, vrf = vrf)
+    val blockFactory = BlockFactory(vrf)
     var genesis = null
     //var stakeDistribution = null
     //var blockchainState = null
