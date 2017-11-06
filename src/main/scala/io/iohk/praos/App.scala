@@ -1,14 +1,15 @@
 package io.iohk.praos
 
-/*import io.iohk.praos.domain._
+import io.iohk.praos.domain._
 import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
 import io.iohk.praos.domain.ledger.{ConsensusResolver, LedgerImpl}
-import io.iohk.praos.util.TransactionsGenerator*/
+import io.iohk.praos.util.TransactionsGenerator
 import io.iohk.praos.util.Logger
+import sun.plugin.dom.exception.InvalidStateException
 
 object App extends Logger{
 
-  def main(args: Array[String]): Unit = ??? /*{
+  def main(args: Array[String]): Unit = {
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = Stakeholder(privateKey1, publicKey1)
@@ -35,24 +36,29 @@ object App extends Logger{
     )
     val vrf = VerifiableRandomFunctionStubImpl
     val blockFactory = BlockFactory(signer = SignerImpl, vrf)
-    val virtualGenesis = VirtualGenesisImpl(env.epochLength, env.k)
+    val virtualGenesis = VirtualGenesisImpl(env.k)
     val ledger = LedgerImpl(ConsensusResolver)
     // Setup initial App state
     var blockchainState = BlockchainState(
       fullBlockchain = List.empty[Block],
       receivedChains = List.empty[Blockchain]
     )
-    var genesis = Genesis(env.initialStakeDistribution, env.initialNonce)
-    var genesisHistory = GenesisHistoryImpl.appendAt(genesis, 0)
+    var genesisHistory: GenesisHistory = GenesisHistoryImpl(
+      Map(0 -> Genesis(env.initialStakeDistribution, env.initialNonce))
+    )
     // Run the protocol for 1 epoch
     (1 to env.epochLength).foreach { _ =>
       val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      genesis = virtualGenesis.computeGenesis(slotInEpoch, genesisHistory)
+      var genesis: Genesis = virtualGenesis.computeGenesisForEpoch(slotInEpoch, genesisHistory).getOrElse(
+        throw new InvalidStateException("Can not compute a genesis")
+      )
       /**
         * @note slotState contains the stakeDistribution and nonce of the current slot
         * For technical reasons we compute these data slot by slot.
         */
-      var slotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1)
+      var slotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1).getOrElse(
+        throw new InvalidStateException(s"Can not get slot state for slot ${slotInEpoch.slotNumber}")
+      )
       stakeHolders.foreach(stakeholder => {
         val isLeaderProof: Option[(RandomValue, VerifiableRandomFunction#VrfProof)] =
           ElectionManager(env.activeSlotCoefficient, vrf)
@@ -85,5 +91,5 @@ object App extends Logger{
       log.debug(s"[Main] - SLOT ${slotInEpoch.slotNumber} end in epoch ${slotInEpoch.epochNumber}")
       env.timeProvider.advance(env.slotDurationInMilliseconds)
     }
-  }*/
+  }
 }
