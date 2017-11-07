@@ -22,8 +22,8 @@ class BlockSpec extends FlatSpec with Matchers {
   val transaction2 = Transaction(publicKey2, publicKey1, 1)
 
   val prevBlockHash: Hasher#Digest = akka.util.ByteString("abc")
-  val state = Some(prevBlockHash)
-  val slotNumber: SlotNumber = 123
+  val state = None
+  val slotNumber: SlotNumber = 1
   val data = List(transaction1, transaction2)
   val proof = akka.util.ByteString("def")
   val seed: Seed = 1

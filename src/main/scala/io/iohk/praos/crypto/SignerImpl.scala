@@ -10,13 +10,12 @@ object SignerImpl extends Signer {
     val hasher = PredefinedHasher("MD5")
     val serializedData = ByteString(data.toString)
     val hashedData = hasher.hash(serializedData)
-    val encryptedData = CipherStubImpl.encryptWith(hashedData, publicKey)
-    val signature = SignatureProviderImpl.getSignature(encryptedData, privateKey)
+    val signature = SignatureProviderImpl.getSignature(hashedData, privateKey)
     Signed[T](data, signature)
   }
 
   override def stripSignature[T](signedData: Signed[T]): (Key, T) = {
-    val (key, _) = SignatureProviderImpl.splitSignature(signedData.signature)
+    val key = SignatureProviderImpl.getPublicKeyFromSignature(signedData.signature)
     (key, signedData.value)
   }
 }
