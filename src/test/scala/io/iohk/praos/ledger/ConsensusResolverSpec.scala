@@ -1,4 +1,4 @@
-package io.iohk.praos.domain.ledger
+package io.iohk.praos.ledger
 
 import akka.util.ByteString
 import io.iohk.praos.domain.{Block, Blockchain, BlockchainState, SlotNumber}

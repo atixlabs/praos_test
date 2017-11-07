@@ -58,7 +58,7 @@ case class StakeDistributionImpl(stakeMap: Map[Key, Int]) extends StakeDistribut
     else {
       val finalFromStake = fromStake - stake
       val finalToStake = toStake + stake
-      copy(stakeMap = stakeMap.updated(from, finalFromStake).updated(to, finalToStake))
+      copy(stakeMap = stakeMap + (from -> finalFromStake) + (to -> finalToStake))
     }
   }
 

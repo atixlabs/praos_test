@@ -2,6 +2,7 @@ package io.iohk.praos
 
 import akka.util.ByteString
 
+import scala.annotation.tailrec
 import scala.util.Random
 import scala.math.abs
 
@@ -19,6 +20,13 @@ package object crypto {
     ByteString((x zip y).map(elements => (elements._1 ^ elements._2).toByte).toArray)
 
   def generateNewRandomValue(): RandomValue = abs(Random.nextInt())
+
+  @tailrec
+  def generateDifferentRandomValue(randomValue: RandomValue): RandomValue = {
+    val anotherRandomValue = generateNewRandomValue()
+    if (randomValue == anotherRandomValue) generateDifferentRandomValue(randomValue)
+    else anotherRandomValue
+  }
 
   /**
     * @return (publicKey, privateKey)

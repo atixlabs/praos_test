@@ -12,7 +12,7 @@ trait VerifiableRandomFunction {
     */
   def prove(privateKey: Key, randomSeed: RandomValue): (RandomValue, VrfProof)
 
-  def verify(publicKey: Key, randomSeed: RandomValue, vrfProof: VrfProof): Boolean
+  def verify(publicKey: Key, randomSeed: RandomValue, vrfVerifiableValues: (RandomValue, VrfProof)): Boolean
 }
 
 /**
@@ -33,6 +33,9 @@ object VerifiableRandomFunctionStubImpl extends VerifiableRandomFunction {
 
   private val hasher = PredefinedHasher("MD5")
 
+  /**
+    * @return (randomNonce, vrfProof) This tuple could be verifiable given a public key and randomSeed
+    */
   def prove(privateKey: Key, randomSeed: RandomValue): (RandomValue, VrfProof) = {
     val publicKey = getPublicKeyFromPrivateKey(privateKey)
     (
@@ -41,6 +44,8 @@ object VerifiableRandomFunctionStubImpl extends VerifiableRandomFunction {
     )
   }
 
-  def verify(publicKey: Key, randomSeed: RandomValue, vrfProof: VrfProof): Boolean =
-    vrfProof == publicKey
+  def verify(publicKey: Key, randomSeed: RandomValue, vrfVerifiableValues: (RandomValue, VrfProof)): Boolean = {
+    val (randomNonce, vrfProof) = vrfVerifiableValues
+    randomNonce == abs(BigInt(hasher.hash(publicKey ++ ByteString(randomSeed)).toArray).toInt) && vrfProof == publicKey
+  }
 }
