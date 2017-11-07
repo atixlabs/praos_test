@@ -1,15 +1,15 @@
 package io.iohk.praos
 
-import io.iohk.praos.domain._
+/*import io.iohk.praos.domain._
 import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
 import io.iohk.praos.domain.ledger.{ConsensusResolver, LedgerImpl}
 import io.iohk.praos.util.TransactionsGenerator
+import sun.plugin.dom.exception.InvalidStateException*/
 import io.iohk.praos.util.Logger
-import sun.plugin.dom.exception.InvalidStateException
 
-object App extends Logger{
+object App extends Logger {
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = ??? /*{
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = Stakeholder(privateKey1, publicKey1)
@@ -23,7 +23,7 @@ object App extends Logger{
     val env: Environment = Environment(
       stakeDistribution,
       epochLength = 30,
-      k = 3,
+      lengthForCommonPrefix = 3,
       slotDurationInMilliseconds = 3000,
       timeProvider = new TimeProvider(initialTime = 0),
       activeSlotCoefficient = 0.70,
@@ -36,7 +36,7 @@ object App extends Logger{
     )
     val vrf = VerifiableRandomFunctionStubImpl
     val blockFactory = BlockFactory(signer = SignerImpl, vrf)
-    val virtualGenesis = VirtualGenesisImpl(env.k)
+    val virtualGenesis = VirtualGenesisImpl(env.epochLength, env.lengthForCommonPrefix)
     val ledger = LedgerImpl(ConsensusResolver)
     // Setup initial App state
     var blockchainState = BlockchainState(
@@ -91,5 +91,5 @@ object App extends Logger{
       log.debug(s"[Main] - SLOT ${slotInEpoch.slotNumber} end in epoch ${slotInEpoch.epochNumber}")
       env.timeProvider.advance(env.slotDurationInMilliseconds)
     }
-  }
+  }*/
 }
