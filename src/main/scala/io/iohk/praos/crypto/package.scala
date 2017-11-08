@@ -16,7 +16,7 @@ package object crypto {
 
   private def genKey = (s: RandomValue, length: Int) => ByteString(Array.fill(length)(s.toByte))
 
-  private def XOR(x: ByteString, y: ByteString): ByteString =
+  private def xor(x: ByteString, y: ByteString): ByteString =
     ByteString((x zip y).map(elements => (elements._1 ^ elements._2).toByte).toArray)
 
   def generateNewRandomValue(): RandomValue = abs(Random.nextInt())
@@ -58,10 +58,10 @@ package object crypto {
   }
 
   object CipherStubImpl extends Cipher {
-    def encryptWith(data: ByteString, publicKey: Key): ByteString = XOR(data, publicKey)
+    def encryptWith(data: ByteString, publicKey: Key): ByteString = xor(data, publicKey)
 
     def decryptWith(encryptedData: ByteString, privateKey: Key): Option[ByteString] =
-      Option(XOR(encryptedData, getPublicKeyFromPrivateKey(privateKey)))
+      Some(xor(encryptedData, getPublicKeyFromPrivateKey(privateKey)))
   }
 
   object SignerStubImpl extends Signer {
