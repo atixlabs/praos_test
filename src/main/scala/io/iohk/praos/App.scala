@@ -36,7 +36,7 @@ object App extends Logger {
     )
     val vrf = VerifiableRandomFunctionStubImpl
     val blockFactory = BlockFactory(signer = SignerImpl, vrf)
-    val virtualGenesis = VirtualGenesisImpl(env.epochLength, env.lengthForCommonPrefix)
+    val epochGenesisCalculator: EpochGenesisCalculator = EpochGenesisCalculatorImpl(env.epochLength, env.lengthForCommonPrefix)
     val ledger = LedgerImpl(ConsensusResolver)
     // Setup initial App state
     var blockchainState = BlockchainState(
@@ -49,7 +49,7 @@ object App extends Logger {
     // Run the protocol for 1 epoch
     (1 to env.epochLength).foreach { _ =>
       val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      var genesis: Genesis = virtualGenesis.computeGenesisForEpoch(slotInEpoch, genesisHistory).getOrElse(
+      var genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch, genesisHistory).getOrElse(
         throw new InvalidStateException("Can not compute a genesis")
       )
       /**

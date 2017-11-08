@@ -1,24 +1,23 @@
 package io.iohk.praos.domain
-import io.iohk.praos.util.Logger
 
-trait VirtualGenesis {
+trait EpochGenesisCalculator {
 
   def computeGenesisForEpoch(slotInEpoch: SlotInEpoch, genesisHistory: GenesisHistory): Option[Genesis]
 }
 
-case class VirtualGenesisImpl(epochLength: Int, lengthForCommonPrefix: Int) extends VirtualGenesis with Logger {
+case class EpochGenesisCalculatorImpl(epochLength: Int, lengthForCommonPrefix: Int) extends EpochGenesisCalculator {
 
   override def computeGenesisForEpoch(slotInEpoch: SlotInEpoch, genesisHistory: GenesisHistory): Option[Genesis] = {
     val computeGenesis = (computeGenesisForStaticCase orElse computeGenesisForDynamicCase).lift
-    computeGenesis(slotInEpoch, genesisHistory)
+    computeGenesis(slotInEpoch, genesisHistory).flatten
   }
 
   /**
     * The paper refer to the first epoch as the static case of the protocol.
     * @return the initial genesis
     */
-  private val computeGenesisForStaticCase: PartialFunction[(SlotInEpoch, GenesisHistory), Genesis] = {
-    case (slotInEpoch, genesisHistory) if slotInEpoch.epochNumber == 1 => genesisHistory.getGenesisAt(0).get
+  private val computeGenesisForStaticCase: PartialFunction[(SlotInEpoch, GenesisHistory), Option[Genesis]] = {
+    case (slotInEpoch, genesisHistory) if slotInEpoch.epochNumber == 1 => genesisHistory.getGenesisAt(0)
   }
 
   /**
@@ -27,11 +26,11 @@ case class VirtualGenesisImpl(epochLength: Int, lengthForCommonPrefix: Int) exte
     *         the current epoch number, k the length that ensures common prefix,
     *         and 2k the value that ensures the liveness property.
     */
-  private val computeGenesisForDynamicCase: PartialFunction[(SlotInEpoch, GenesisHistory), Genesis] = {
+  private val computeGenesisForDynamicCase: PartialFunction[(SlotInEpoch, GenesisHistory), Option[Genesis]] = {
     case (slotInEpoch, genesisHistory) if slotInEpoch.epochNumber > 1 => {
       val slotsAtLastEpochStarted = epochLength * (slotInEpoch.epochNumber - 1)
       val transactionConfirmationTime = 2 * lengthForCommonPrefix
-      genesisHistory.getGenesisAt(slotsAtLastEpochStarted - transactionConfirmationTime).get
+      genesisHistory.getGenesisAt(slotsAtLastEpochStarted - transactionConfirmationTime)
     }
   }
 }
