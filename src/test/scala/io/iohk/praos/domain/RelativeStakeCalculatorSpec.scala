@@ -19,7 +19,7 @@ class RelativeStakeCalculatorSpec extends FlatSpec with GivenWhenThen with Match
   val publicKey3: Key = akka.util.ByteString("3")
 
   // A stake distribution assigning 10 to U1, 2 to U2 and 8 to U3.
-  val stakeDistribution = StakeDistribution(publicKey1 -> 10, publicKey2 -> 2, publicKey3 -> 8)
+  val stakeDistribution = StakeDistributionImpl(Map(publicKey1 -> 10, publicKey2 -> 2, publicKey3 -> 8))
 
   "A stakeholder holding a stake of 10" should "have a relative stake of 10/20" in {
     Given("a stake distribution with a total stake of 20")
@@ -37,12 +37,12 @@ class RelativeStakeCalculatorSpec extends FlatSpec with GivenWhenThen with Match
   }
 
   "A stakeholder holding all of the stake" should "have a relative stake of 1" in {
-    val stakeDistribution = StakeDistribution(publicKey1 -> 10)
+    val stakeDistribution = StakeDistributionImpl(Map(publicKey1 -> 10))
     RelativeStakeCalculator.calculate(publicKey1, stakeDistribution) shouldBe 1.0
   }
 
   "A stakeholder holding no stake" should "have a relative stake of 0" in {
-    val stakeDistribution = StakeDistribution(publicKey1 -> 0, publicKey2 -> 10)
+    val stakeDistribution = StakeDistributionImpl(Map(publicKey1 -> 0, publicKey2 -> 10))
     RelativeStakeCalculator.calculate(publicKey1, stakeDistribution) shouldBe 0.0
   }
 }

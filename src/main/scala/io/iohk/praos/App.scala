@@ -1,68 +1,89 @@
 package io.iohk.praos
 
-import io.iohk.praos.domain._
-import io.iohk.praos.crypto.{SignerImpl, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+/*import io.iohk.praos.domain._
+import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+import io.iohk.praos.ledger.{ConsensusResolver, LedgerImpl}
+import io.iohk.praos.util.TransactionsGenerator*/
 import io.iohk.praos.util.Logger
 
-object App extends Logger {
+object App extends Logger{
 
-  def main(args: Array[String]): Unit = {
-    log.debug("[Main] Start Protocol Simulation")
+  def main(args: Array[String]): Unit = ??? /*{
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder1 = StakeHolder(privateKey1, publicKey1)
+    val stakeholder1 = Stakeholder(privateKey1, publicKey1)
     val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder2 = StakeHolder(privateKey2, publicKey2)
+    val stakeholder2 = Stakeholder(privateKey2, publicKey2)
     val (publicKey3, privateKey3) = crypto.generateKeyPair(generateNewRandomValue())
-    val stakeholder3 = StakeHolder(privateKey3, publicKey3)
+    val stakeholder3 = Stakeholder(privateKey3, publicKey3)
     val stakeHolders = List(stakeholder1, stakeholder2, stakeholder3)
-    val stakeDistribution = StakeDistribution(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4)
+    val stakeDistribution = StakeDistributionImpl(Map(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4))
     // Setup Environment
     val env: Environment = Environment(
       stakeDistribution,
-      epochLength = 10,
+      epochLength = 30,
+      k = 3,
       slotDurationInMilliseconds = 3000,
       timeProvider = new TimeProvider(initialTime = 0),
-      activeSlotCoefficient = 0.70
+      activeSlotCoefficient = 0.70,
+      initialNonce = generateNewRandomValue()
     )
+    // Setup Domain objects
     val slotInEpochCalculator = SlotInEpochCalculator(
       epochLength = env.epochLength,
       slotDurationInMilliseconds = env.slotDurationInMilliseconds
     )
-
     val vrf = VerifiableRandomFunctionStubImpl
-    val blockFactory = BlockFactory(signer = SignerImpl, vrf = vrf)
-    var genesis = null
-    //var stakeDistribution = null
-    //var blockchainState = null
-
-    // Run Protocol
-    /*
-     while (true) {
-      val slotInEpoch: SlotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      if (slotInEpoch.firstInEpoch) {
-       genesis = VirtualGenesis.generate(slotInEpoch, blockchain)
-      }
+    val blockFactory = BlockFactory(signer = SignerImpl, vrf)
+    val virtualGenesis = VirtualGenesisImpl(env.epochLength, env.k)
+    val ledger = LedgerImpl(ConsensusResolver)
+    // Setup initial App state
+    var blockchainState = BlockchainState(
+      fullBlockchain = List.empty[Block],
+      receivedChains = List.empty[Blockchain]
+    )
+    var genesis = Genesis(env.initialStakeDistribution, env.initialNonce)
+    var genesisHistory = GenesisHistoryImpl.appendAt(genesis, 0)
+    // Run the protocol for 1 epoch
+    (1 to env.epochLength).foreach { _ =>
+      val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
+      genesis = virtualGenesis.computeGenesis(slotInEpoch, genesisHistory)
+      /**
+        * @note slotState contains the stakeDistribution and nonce of the current slot
+        * For technical reasons we compute these data slot by slot.
+        */
+      var slotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1)
       stakeHolders.foreach(stakeholder => {
-        val isLeaderProof: Option[VrfProof]) =
-          ElectionManager(env.activeSlotCoefficient, vrf).isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
+        val isLeaderProof: Option[(RandomValue, VerifiableRandomFunction#VrfProof)] =
+          ElectionManager(env.activeSlotCoefficient, vrf)
+            .isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
         if (isLeaderProof.isDefined) {
-          val transactions = TransactionsGenerator.generateTxs(stakeDistribution, 5)
+          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) ELECTED for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
+          val transactions: List[Transaction] = TransactionsGenerator.generateTxs(
+            slotState.genesisDistribution,
+            stakeHolders.map(_.publicKey),
+            5
+          )
           val newBlock: Block = blockFactory.makeBlock(
             slotInEpoch.slotNumber,
             isLeaderProof.get,
             transactions,
-            blockChainState.maybeHeadBlockHash,
+            blockchainState.maybeHeadBlockHash,
             stakeholder,
             genesis.genesisNonce)
-          // TODO step1: If there is a new block added to the Blockchain
-          // TODO step2: Emit the new block to the channel
-        }
+          val newChain: Blockchain = List(newBlock)
+          blockchainState = ledger.receiveChain(blockchainState, newChain)
+        } else
+          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) NOT elected for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
       })
-      // In parallel
-      // TODO: Receive chains (new blocks) and verify them, uptating the current state.
-
+      /**
+        * @note Applies the new transactions from the received blocks that belongs to the largest chain.
+        */
+      (slotState, blockchainState) = ledger.slotEnd(slotState, blockchainState)
+      genesisHistory = genesisHistory.appendAt(slotState, slotInEpoch.slotNumber)
+      log.debug(s"[Main] - Blockchain: [${blockchainState.fullBlockchain.map(_.value.slotNumber).mkString("->")}]")
+      log.debug(s"[Main] - SLOT ${slotInEpoch.slotNumber} end in epoch ${slotInEpoch.epochNumber}")
       env.timeProvider.advance(env.slotDurationInMilliseconds)
-    } */
-  }
+    }
+  }*/
 }

@@ -10,7 +10,7 @@ case class BlockFactory(signer: Signer, vrf: VerifiableRandomFunction) {
     isLeader          : VerifiableRandomFunction#VrfProof,
     transactions      : List[Transaction],
     prevBlockHash     : Option[Hasher#Digest],
-    stakeholder       : StakeHolder,
+    stakeholder       : Stakeholder,
     genesisNonce      : Seed): Block = {
 
     // TODO: Use slotToSeed when implemented.

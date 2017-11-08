@@ -1,6 +1,7 @@
 package io.iohk.praos.domain
 
 import io.iohk.praos.crypto.Key
+import io.iohk.praos.domain.StakeDistribution.Stake
 
 
 /**
