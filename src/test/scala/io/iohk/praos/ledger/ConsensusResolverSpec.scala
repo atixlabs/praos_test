@@ -103,7 +103,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     finalState.maybeHeadBlockHash.get shouldEqual block4.blockHash
   }
 
-  def generateDummyBlock(slotNumber: SlotNumber, state: Option[ByteString]) = Block(
+  private def generateDummyBlock(slotNumber: SlotNumber, state: Option[ByteString]) = Block(
     state = state,
     slotNumber = slotNumber,
     data = List.empty,
