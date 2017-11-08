@@ -1,21 +1,27 @@
 package io.iohk.praos.util
 
+import io.iohk.praos.crypto.Key
+import io.iohk.praos.domain.StakeDistribution.Stake
+import io.iohk.praos.domain.{StakeDistribution, Transaction}
+
 import scala.annotation.tailrec
 import scala.util.Random
-import io.iohk.praos.crypto.Key
-import io.iohk.praos.domain.{Stake, StakeDistribution, Transaction, applyTransaction}
 
 object TransactionsGenerator {
 
-  private type Stakeholder = (Key, Stake)
-
-  private def chooseRandomStakeholderFrom(stakeDistribution: StakeDistribution): Stakeholder = {
-    val stakeDistributionAsSeq = stakeDistribution.toSeq
-    val index = Random.nextInt(stakeDistributionAsSeq.length)
-    stakeDistributionAsSeq(index)
+  def generateTxs(stakeDistribution: StakeDistribution, stakeholderKeys: Seq[Key], n: Int = 1): List[Transaction] = {
+    require(n >= 0, "Number of transactions must be greater or equal to zero")
+    @tailrec
+    def rec(stakeDistribution: StakeDistribution, n: Int, acc: List[Transaction]): List[Transaction] = {
+      if (n == 0) acc
+      else {
+        val transaction = generateTx(stakeDistribution, stakeholderKeys)
+        val newStakeDistribution = stakeDistribution.applyTransaction(transaction)
+        rec(newStakeDistribution, n - 1, transaction :: acc)
+      }
+    }
+    rec(stakeDistribution, n, List.empty[Transaction]).reverse
   }
-
-  private def chooseRandomStakeFrom(stakeUpperBound: Stake): Stake = Random.nextInt(stakeUpperBound)
 
   /**
     * Given a stake distribution generates a transaction choosing randomly two stakeHolders
@@ -23,27 +29,19 @@ object TransactionsGenerator {
     *
     * @return A tuple with the transaction generated, and the stake distribution with the transaction applied
     */
-  def generateTx(stakeDistribution: StakeDistribution): Transaction = {
-    val sender = chooseRandomStakeholderFrom(stakeDistribution)
-    val recipient = chooseRandomStakeholderFrom(stakeDistribution)
+  private def generateTx(stakeDistribution: StakeDistribution, stakeholderKeys: Seq[Key]): Transaction = {
+    val sender = pickRandomStakeholder(stakeholderKeys)
+    val recipient = pickRandomStakeholder(stakeholderKeys)
+    val random = pickRandomStakeFrom(stakeDistribution.stakeOf(sender))
     Transaction(
-      senderPublicKey = sender._1,
-      recipientPublicKey = recipient._1,
-      stake = chooseRandomStakeFrom(stakeUpperBound = sender._2)
+      senderPublicKey = sender,
+      recipientPublicKey = recipient,
+      stake = random
     )
   }
 
-  def generateTxs(stakeDistribution: StakeDistribution, n: Int): List[Transaction] = {
-    require(n >= 0, "Number of transactions must be greater or equal to zero")
-    @tailrec
-    def rec(stakeDistribution: StakeDistribution, n: Int, acc: List[Transaction]): List[Transaction] = {
-      if (n == 0) acc
-      else {
-        val transaction = generateTx(stakeDistribution)
-        val newStakeDistribution = applyTransaction(transaction, stakeDistribution)
-        rec(newStakeDistribution, n - 1, transaction :: acc)
-      }
-    }
-    rec(stakeDistribution, n, List.empty[Transaction])
-  }
+  private def pickRandomStakeholder(stakeholderKeys: Seq[Key]): Key =
+    stakeholderKeys(Random.nextInt(stakeholderKeys.length))
+
+  private def pickRandomStakeFrom(stake: Stake): Stake = Random.nextInt(stake)
 }
