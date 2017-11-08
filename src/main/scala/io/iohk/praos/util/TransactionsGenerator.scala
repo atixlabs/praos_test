@@ -11,7 +11,6 @@ object TransactionsGenerator {
 
   def generateTxs(stakeDistribution: StakeDistribution, stakeholderKeys: Seq[Key], n: Int = 1): List[Transaction] = {
     require(n >= 0, "Number of transactions must be greater or equal to zero")
-
     @tailrec
     def rec(stakeDistribution: StakeDistribution, n: Int, acc: List[Transaction]): List[Transaction] = {
       if (n == 0) acc
@@ -21,8 +20,7 @@ object TransactionsGenerator {
         rec(newStakeDistribution, n - 1, transaction :: acc)
       }
     }
-
-    rec(stakeDistribution, n, List.empty[Transaction])
+    rec(stakeDistribution, n, List.empty[Transaction]).reverse
   }
 
   /**
@@ -34,10 +32,11 @@ object TransactionsGenerator {
   private def generateTx(stakeDistribution: StakeDistribution, stakeholderKeys: Seq[Key]): Transaction = {
     val sender = pickRandomStakeholder(stakeholderKeys)
     val recipient = pickRandomStakeholder(stakeholderKeys)
+    val random = pickRandomStakeFrom(stakeDistribution.stakeOf(sender))
     Transaction(
       senderPublicKey = sender,
       recipientPublicKey = recipient,
-      stake = pickRandomStakeFrom(stakeDistribution.stakeOf(sender))
+      stake = random
     )
   }
 

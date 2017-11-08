@@ -29,12 +29,12 @@ class TransactionGeneratorSpec  extends FlatSpec with Matchers {
     }}
   }
 
-  def checkTxIntegrity(initialStakeDistribution: StakeDistribution, tx: Transaction, finalStakeDistribution: StakeDistribution): Boolean ={
+  def checkTxIntegrity(initialStakeDistribution: StakeDistribution, tx: Transaction, finalStakeDistribution: StakeDistribution): Boolean = {
     val positiveStakeForSender = finalStakeDistribution.stakeOf(tx.senderPublicKey) >= 0
     val positiveStakeForRecipient = finalStakeDistribution.stakeOf(tx.recipientPublicKey) >= 0
-    val lessOrEqualStakeForSender = finalStakeDistribution.stakeOf(tx.senderPublicKey) == (initialStakeDistribution.stakeOf(tx.senderPublicKey) - tx.stake)
-    val greaterOrEqualStakeForRecipient = finalStakeDistribution.stakeOf(tx.recipientPublicKey) == (initialStakeDistribution.stakeOf(tx.recipientPublicKey) + tx.stake)
+    val lessStakeForSender = finalStakeDistribution.stakeOf(tx.senderPublicKey) == (initialStakeDistribution.stakeOf(tx.senderPublicKey) - tx.stake)
+    val greaterStakeForRecipient = finalStakeDistribution.stakeOf(tx.recipientPublicKey) == (initialStakeDistribution.stakeOf(tx.recipientPublicKey) + tx.stake)
     val senderEqualToRecipient = tx.senderPublicKey == tx.recipientPublicKey
-    positiveStakeForSender && positiveStakeForRecipient && (senderEqualToRecipient || (lessOrEqualStakeForSender && greaterOrEqualStakeForRecipient))
+    positiveStakeForSender && positiveStakeForRecipient && (senderEqualToRecipient || (lessStakeForSender && greaterStakeForRecipient))
   }
 }

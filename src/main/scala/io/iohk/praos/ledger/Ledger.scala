@@ -1,4 +1,4 @@
-package io.iohk.praos.domain.ledger
+package io.iohk.praos.ledger
 
 import io.iohk.praos.crypto.combineSeeds
 import io.iohk.praos.domain._

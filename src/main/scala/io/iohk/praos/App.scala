@@ -2,7 +2,7 @@ package io.iohk.praos
 
 /*import io.iohk.praos.domain._
 import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
-import io.iohk.praos.domain.ledger.{ConsensusResolver, LedgerImpl}
+import io.iohk.praos.ledger.{ConsensusResolver, LedgerImpl}
 import io.iohk.praos.util.TransactionsGenerator
 import sun.plugin.dom.exception.InvalidStateException*/
 import io.iohk.praos.util.Logger

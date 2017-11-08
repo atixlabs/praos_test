@@ -1,4 +1,4 @@
-package io.iohk.praos.domain.ledger
+package io.iohk.praos.ledger
 
 import io.iohk.praos.domain.{Blockchain, BlockchainState}
 
@@ -10,6 +10,7 @@ trait ConsensusResolver {
 object ConsensusResolver extends ConsensusResolver {
 
   /**
+    * TODO: Consider cases with possible pending validation of the txs of the blocks.
     * @return The new BlockchainState, with the current max valid blockchain and without received chains.
     */
   def pickMaxValid(state: BlockchainState): BlockchainState = {
