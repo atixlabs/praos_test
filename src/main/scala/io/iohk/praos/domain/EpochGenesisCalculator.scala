@@ -2,22 +2,22 @@ package io.iohk.praos.domain
 
 trait EpochGenesisCalculator {
 
-  def computeGenesisForEpoch(slotInEpoch: SlotInEpoch, genesisHistory: GenesisHistory): Option[Genesis]
+  def computeGenesisForEpoch(epochNumber: Int, genesisHistory: GenesisHistory): Option[Genesis]
 }
 
 case class EpochGenesisCalculatorImpl(epochLength: Int, lengthForCommonPrefix: Int) extends EpochGenesisCalculator {
 
-  override def computeGenesisForEpoch(slotInEpoch: SlotInEpoch, genesisHistory: GenesisHistory): Option[Genesis] = {
+  override def computeGenesisForEpoch(epochNumber: Int, genesisHistory: GenesisHistory): Option[Genesis] = {
     val computeGenesis = (computeGenesisForStaticCase orElse computeGenesisForDynamicCase).lift
-    computeGenesis(slotInEpoch, genesisHistory).flatten
+    computeGenesis(epochNumber, genesisHistory).flatten
   }
 
   /**
     * The paper refer to the first epoch as the static case of the protocol.
     * @return the initial genesis
     */
-  private val computeGenesisForStaticCase: PartialFunction[(SlotInEpoch, GenesisHistory), Option[Genesis]] = {
-    case (slotInEpoch, genesisHistory) if slotInEpoch.epochNumber == 1 => genesisHistory.getGenesisAt(0)
+  private val computeGenesisForStaticCase: PartialFunction[(Int, GenesisHistory), Option[Genesis]] = {
+    case (1, genesisHistory) => genesisHistory.getGenesisAt(0)
   }
 
   /**
@@ -26,9 +26,9 @@ case class EpochGenesisCalculatorImpl(epochLength: Int, lengthForCommonPrefix: I
     *         the current epoch number, k the length that ensures common prefix,
     *         and 2k the value that ensures the liveness property.
     */
-  private val computeGenesisForDynamicCase: PartialFunction[(SlotInEpoch, GenesisHistory), Option[Genesis]] = {
-    case (slotInEpoch, genesisHistory) if slotInEpoch.epochNumber > 1 => {
-      val slotsAtLastEpochStarted = epochLength * (slotInEpoch.epochNumber - 1)
+  private val computeGenesisForDynamicCase: PartialFunction[(Int, GenesisHistory), Option[Genesis]] = {
+    case (epochNumber, genesisHistory) if epochNumber > 1 => {
+      val slotsAtLastEpochStarted = epochLength * (epochNumber - 1)
       val transactionConfirmationTime = 2 * lengthForCommonPrefix
       genesisHistory.getGenesisAt(slotsAtLastEpochStarted - transactionConfirmationTime)
     }

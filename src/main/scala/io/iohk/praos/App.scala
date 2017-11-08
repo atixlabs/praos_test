@@ -49,7 +49,7 @@ object App extends Logger {
     // Run the protocol for 1 epoch
     (1 to env.epochLength).foreach { _ =>
       val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      var genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch, genesisHistory).getOrElse(
+      var genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch.epochNumber, genesisHistory).getOrElse(
         throw new InvalidStateException("Can not compute a genesis")
       )
       /**
