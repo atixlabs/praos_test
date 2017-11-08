@@ -12,6 +12,8 @@ val dep = {
   Seq(
     "ch.qos.logback" % "logback-classic" % "1.1.9",
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
+    "com.madgag.spongycastle" % "core" % "1.56.0.0",
+    "org.consensusresearch" %% "scrypto" % "1.2.0-RC3",
     "org.scalatest" %% "scalatest" % "3.0.1" % "test",
     "org.scalamock" %% "scalamock-scalatest-support" % "3.5.0" % "test",
     "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"

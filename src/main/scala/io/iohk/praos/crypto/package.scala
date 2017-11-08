@@ -1,114 +1,97 @@
 package io.iohk.praos
 
+import java.security.SecureRandom
 import akka.util.ByteString
-
-import scala.annotation.tailrec
-import scala.util.Random
-import scala.math.abs
+import fr.cryptohash.{Keccak256, Keccak512}
+import org.spongycastle.asn1.sec.SECNamedCurves
+import org.spongycastle.asn1.x9.X9ECParameters
+import org.spongycastle.crypto.AsymmetricCipherKeyPair
+import org.spongycastle.crypto.generators.ECKeyPairGenerator
+import org.spongycastle.crypto.params._
 
 package object crypto {
+
+  // Original files
   type Key = ByteString
-  type KeyPair = (Key, Key)
-  type RandomValue = Int
+  type RandomValue = ByteString
+  type Signature = ByteString
+  type Seed = ByteString
 
-  // Dummy implementation to simulate a public-private key schema.
-  val keyLength = 32
+  val KEY_LENGTH = 32
+  val RANDOM_LENGTH = 32
 
-  private def genKey = (s: RandomValue, length: Int) => ByteString(Array.fill(length)(s.toByte))
+  val curveParams: X9ECParameters = SECNamedCurves.getByName("secp256k1")
+  val curve: ECDomainParameters = new ECDomainParameters(curveParams.getCurve, curveParams.getG, curveParams.getN, curveParams.getH)
 
-  private def XOR(x: ByteString, y: ByteString): ByteString =
-    ByteString((x zip y).map(elements => (elements._1 ^ elements._2).toByte).toArray)
-
-  def generateNewRandomValue(): RandomValue = abs(Random.nextInt())
-
-  @tailrec
-  def generateDifferentRandomValue(randomValue: RandomValue): RandomValue = {
-    val anotherRandomValue = generateNewRandomValue()
-    if (randomValue == anotherRandomValue) generateDifferentRandomValue(randomValue)
-    else anotherRandomValue
+  def kec256(input: Array[Byte], start: Int, length: Int): Array[Byte] = {
+    val digest = new Keccak256
+    digest.update(input, start, length)
+    digest.digest
   }
 
-  /**
-    * @return (publicKey, privateKey)
-    */
-  def generateKeyPair(seed: RandomValue): KeyPair = {
-    (genKey(seed + 1, keyLength), genKey(seed, keyLength))
+  def kec256(input: Array[Byte]*): Array[Byte] = {
+    val digest: Keccak256 = new Keccak256
+    input.foreach(i => digest.update(i))
+    digest.digest
   }
 
-  def getPublicKeyFromPrivateKey(privateKey: Key): Key = {
-    privateKey map (byte => (byte + 1).toByte)
+  def kec256(input: ByteString): ByteString =
+    ByteString(kec256(input.toArray))
+
+  def kec512(input: Array[Byte]*): Array[Byte] = {
+    val digest = new Keccak512
+    input.foreach(i => digest.update(i))
+    digest.digest
   }
 
-  trait Cipher {
-    def encryptWith(data: ByteString, publicKey: Key): ByteString
-
-    def decryptWith(encryptedData: ByteString, privateKey: Key): Option[ByteString]
+  def generateKeyPair(secureRandom: SecureRandom): AsymmetricCipherKeyPair = {
+    val generator = new ECKeyPairGenerator
+    generator.init(new ECKeyGenerationParameters(curve, secureRandom))
+    generator.generateKeyPair()
   }
 
-  trait Signer {
-    /**
-      * @return signedData
-      */
-    def signedWith(data: ByteString, privateKey: Key): ByteString
+  def secureRandomByteString(secureRandom: SecureRandom, length: Int): ByteString =
+    ByteString(secureRandomByteArray(secureRandom, length))
 
-    /**
-      * @return (publicKey, data)
-      */
-    def stripSignature(signedData: ByteString): (Key, ByteString)
+  def secureRandomByteArray(secureRandom: SecureRandom, length: Int): Array[Byte] = {
+    val bytes = Array.ofDim[Byte](length)
+    secureRandom.nextBytes(bytes)
+    bytes
   }
 
-  object CipherStubImpl extends Cipher {
-    def encryptWith(data: ByteString, publicKey: Key): ByteString = XOR(data, publicKey)
-
-    def decryptWith(encryptedData: ByteString, privateKey: Key): Option[ByteString] =
-      Option(XOR(encryptedData, getPublicKeyFromPrivateKey(privateKey)))
+  /** @return (privateKey, publicKey) pair */
+  def keyPairToByteArrays(keyPair: AsymmetricCipherKeyPair): (Array[Byte], Array[Byte]) = {
+    val prvKey = keyPair.getPrivate.asInstanceOf[ECPrivateKeyParameters].getD.toByteArray
+    val pubKey = keyPair.getPublic.asInstanceOf[ECPublicKeyParameters].getQ.getEncoded(false).tail
+    (prvKey, pubKey)
   }
 
-  object SignerStubImpl extends Signer {
-    def signedWith(data: ByteString, privateKey: Key): ByteString =
-      getPublicKeyFromPrivateKey(privateKey) ++ data
-
-    def stripSignature(signedData: ByteString): (Key, ByteString) = signedData.splitAt(keyLength)
+  def keyPairToByteStrings(keyPair: AsymmetricCipherKeyPair): (ByteString, ByteString) = {
+    val (prv, pub) = keyPairToByteArrays(keyPair)
+    (ByteString(prv), ByteString(pub))
   }
 
-  /**
-    * The seed for a PRNG.
-    */
-  type Seed = Int
+  def keyPairFromPrvKey(prvKeyBytes: Array[Byte]): AsymmetricCipherKeyPair = {
+    val privateKey = BigInt(1, prvKeyBytes)
+    keyPairFromPrvKey(privateKey)
+  }
+
+  def keyPairFromPrvKey(prvKey: BigInt): AsymmetricCipherKeyPair = {
+    val publicKey = curve.getG.multiply(prvKey.bigInteger).normalize()
+    new AsymmetricCipherKeyPair(new ECPublicKeyParameters(publicKey, curve), new ECPrivateKeyParameters(prvKey.bigInteger, curve))
+  }
+
+  def pubKeyFromPrvKey(prvKey: Array[Byte]): Array[Byte] =
+    keyPairToByteArrays(keyPairFromPrvKey(prvKey))._2
+
+
+  def pubKeyFromPrvKey(prvKey: ByteString): ByteString =
+    ByteString(pubKeyFromPrvKey(prvKey.toArray))
+
+  def generateNewRandomValue(): RandomValue = secureRandomByteString(new SecureRandom(), RANDOM_LENGTH)
 
   /**
     * Operation used to "combine" seeds. According to the Praos Formalization, it should be associative.
     */
-  def combineSeeds(x: Seed, y: Seed): Seed = abs(x + y)
-
-  /**
-    * A calculator of hash values.
-    */
-  trait Hasher {
-
-    /** Message digest. */
-    type Digest = ByteString
-
-    /**
-      * Hashes a message.
-      *
-      * @param message  The message to be hashed.
-      * @return  The message digest.
-      */
-    def hash(message: ByteString): Digest
-  }
-
-  /**
-    * A pre-defined hasher.
-    *
-    * @param algorithm  A pre-defined algorithm (e.g. "MD5").
-    * @note  Precondition: The given algorithm is supported.
-    */
-  case class PredefinedHasher(algorithm: String) extends Hasher {
-    override def hash(message: ByteString): Digest = {
-      ByteString(java.security.MessageDigest.getInstance(algorithm).digest(message.toArray))
-    }
-  }
-
-  type Signature = ByteString
+  def combineSeeds(x: Seed, y: Seed): Seed = x ++ y
 }

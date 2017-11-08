@@ -1,5 +1,6 @@
 package io.iohk.praos.ledger
 
+import akka.util.ByteString
 import io.iohk.praos.crypto._
 import io.iohk.praos.domain._
 import org.scalatest.{FlatSpec, Matchers}
@@ -15,7 +16,7 @@ class LedgerSpec extends FlatSpec with Matchers {
     val publicKey2: Key = akka.util.ByteString("2")
     val publicKey3: Key = akka.util.ByteString("3")
     val stakeDistribution = StakeDistributionImpl(Map(publicKey1 -> 10, publicKey2 -> 2, publicKey3 -> 8))
-    val genesisNonce: Seed = 2
+    val genesisNonce: Seed = ByteString(0)
     val initialSlotGenesis = Genesis(stakeDistribution, genesisNonce)
     val initialBlockchainState = BlockchainState(
       fullBlockchain = List.empty[Block],
@@ -39,7 +40,7 @@ class LedgerSpec extends FlatSpec with Matchers {
       slotNumber = 1,
       data = List(transaction1, transaction2),
       proof = akka.util.ByteString("dummy proof") ,
-      nonce = 1,
+      nonce = ByteString(1),
       signature = akka.util.ByteString("dummy sign")
     )
 

@@ -1,7 +1,9 @@
 package io.iohk.praos
 
-/*import io.iohk.praos.domain._
-import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+/*import java.security.SecureRandom
+
+import io.iohk.praos.domain._
+import io.iohk.praos.crypto._
 import io.iohk.praos.ledger.{ConsensusResolver, LedgerImpl}
 import io.iohk.praos.util.TransactionsGenerator*/
 import io.iohk.praos.util.Logger
@@ -10,11 +12,11 @@ object App extends Logger{
 
   def main(args: Array[String]): Unit = ??? /*{
     // Setup an Stake Distribution
-    val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
+    val (publicKey1, privateKey1) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val stakeholder1 = Stakeholder(privateKey1, publicKey1)
-    val (publicKey2, privateKey2) = crypto.generateKeyPair(generateNewRandomValue())
+    val (publicKey2, privateKey2) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val stakeholder2 = Stakeholder(privateKey2, publicKey2)
-    val (publicKey3, privateKey3) = crypto.generateKeyPair(generateNewRandomValue())
+    val (publicKey3, privateKey3) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val stakeholder3 = Stakeholder(privateKey3, publicKey3)
     val stakeHolders = List(stakeholder1, stakeholder2, stakeholder3)
     val stakeDistribution = StakeDistributionImpl(Map(stakeholder1.publicKey -> 5, stakeholder2.publicKey -> 6, stakeholder3.publicKey -> 4))
