@@ -1,17 +1,10 @@
 package io.iohk.praos.domain
 
 import akka.util.ByteString
-import io.iohk.praos.crypto._
+import io.iohk.praos.crypto.{Hasher, PredefinedHasher, Signature, Signed}
 
 
-case class Block(
-  state       : Option[Hasher#Digest],
-  slotNumber  : SlotNumber,
-  data        : List[Transaction],
-  proof       : VerifiableRandomFunction#VrfProof,
-  nonce       : Seed,
-  signature   : Signature) {
-
-  // TODO: Implement it
-  def blockHash: ByteString = ByteString(slotNumber)
+object Block {
+  def apply(unsignedBlock: UnsignedBlock, signature: Signature) = Signed[UnsignedBlock](unsignedBlock, signature)
+  def hashValue(block: Block): Hasher#Digest = PredefinedHasher("MD5").hash(ByteString(block.value.slotNumber))
 }

@@ -1,5 +1,7 @@
 package io.iohk.praos
 
+import io.iohk.praos.crypto.Signed
+
 
 package object domain {
 
@@ -9,6 +11,8 @@ package object domain {
   type RelativeStake = Double
 
   type SlotNumber = Int
+
+  type Block = Signed[UnsignedBlock]
 
   /**
     * Is important note that the Haskell specification variate from the standard definition of Blockchain.

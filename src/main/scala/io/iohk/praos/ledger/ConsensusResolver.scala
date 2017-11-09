@@ -1,6 +1,6 @@
 package io.iohk.praos.ledger
 
-import io.iohk.praos.domain.{Blockchain, BlockchainState}
+import io.iohk.praos.domain.{Block, Blockchain, BlockchainState}
 
 trait ConsensusResolver {
   def pickMaxValid(state: BlockchainState): BlockchainState
@@ -39,7 +39,7 @@ object ConsensusResolver extends ConsensusResolver {
   private def join(baseBlockchain: Blockchain, possibleExtension: Blockchain): Option[Blockchain] = {
     possibleExtension match {
       case Nil => Some(baseBlockchain)
-      case possibleExtensionHead :: _ if baseBlockchain.lastOption.map(_.blockHash) == possibleExtensionHead.state =>
+      case possibleExtensionHead :: _ if baseBlockchain.lastOption.map(Block.hashValue(_)) == possibleExtensionHead.value.state =>
         Some(baseBlockchain ++ possibleExtension)
       case _ => None
     }
