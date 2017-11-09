@@ -5,8 +5,6 @@ import io.iohk.praos.crypto._
 import io.iohk.praos.ledger.{ConsensusResolver, LedgerImpl}
 import io.iohk.praos.util.TransactionsGenerator
 import io.iohk.praos.util.Logger
-// scalastyle:off illegal.imports
-import sun.plugin.dom.exception.InvalidStateException
 
 object App extends Logger {
 
@@ -51,47 +49,47 @@ object App extends Logger {
     // Run the protocol for 3 epoch
     (1 to env.epochLength * 3).foreach { _ =>
       val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      var genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch.epochNumber, genesisHistory).getOrElse(
-        throw new InvalidStateException("Can not compute a genesis")
+      val genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch.epochNumber, genesisHistory).getOrElse(
+        throw new IllegalStateException("Can not compute a genesis")
       )
       /**
         * @note slotState contains the stakeDistribution and nonce of the current slot
         *       For technical reasons we compute these data slot by slot.
         */
-      var slotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1).getOrElse(
-        throw new InvalidStateException(s"Can not get slot state for slot ${slotInEpoch.slotNumber}")
+      val currentSlotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1).getOrElse(
+        throw new IllegalStateException(s"Can not get slot state for slot ${slotInEpoch.slotNumber}")
       )
       stakeHolders.foreach(stakeholder => {
-        val isLeaderProof: Option[(RandomValue, VerifiableRandomFunction#VrfProof)] =
-          ElectionManager(env.activeSlotCoefficient, vrf)
-            .isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
-        if (isLeaderProof.isDefined) {
-          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) ELECTED for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
-          val transactions: List[Transaction] = TransactionsGenerator.generateTxs(
-            slotState.genesisDistribution,
-            stakeHolders.map(_.publicKey),
-            5
+        ElectionManager(env.activeSlotCoefficient, vrf).isStakeHolderLeader(stakeholder, genesis, slotInEpoch) match {
+          case Some((vrfRandomNonce, vrfProof)) => {
+            log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) ELECTED " +
+              s"for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
+            val transactions: List[Transaction] = TransactionsGenerator.generateTxs(
+              currentSlotState.genesisDistribution,
+              stakeHolders.map(_.publicKey),
+              5)
+            val newBlock: Block = blockFactory.makeBlock(
+              slotInEpoch.slotNumber,
+              vrfProof,
+              transactions,
+              blockchainState.maybeHeadBlockHash,
+              stakeholder,
+              genesis.genesisNonce)
+            val newChain: Blockchain = List(newBlock)
+            blockchainState = ledger.receiveChain(blockchainState, newChain)
+          }
+          case None => log.debug(
+            s"[Main] - stakeholder(${stakeholder.publicKey.head}) NOT elected " +
+              s"for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}"
           )
-          val newBlock: Block = blockFactory.makeBlock(
-            slotInEpoch.slotNumber,
-            isLeaderProof.get._2,
-            transactions,
-            blockchainState.maybeHeadBlockHash,
-            stakeholder,
-            genesis.genesisNonce)
-          val newChain: Blockchain = List(newBlock)
-          blockchainState = ledger.receiveChain(blockchainState, newChain)
-        } else
-          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) NOT elected for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
+        }
       })
       /**
         * @note Applies the new transactions from the received blocks that belongs to the largest chain.
         */
-      val (slotState1, blockchainState1) = ledger.slotEnd(slotState, blockchainState)
-      slotState = slotState1
-      blockchainState = blockchainState1
-
-      genesisHistory = genesisHistory.appendAt(slotState, slotInEpoch.slotNumber)
+      val (newSlotState, newBlockchainState) = ledger.slotEnd(currentSlotState, blockchainState)
+      blockchainState = newBlockchainState
+      genesisHistory = genesisHistory.appendAt(newSlotState, slotInEpoch.slotNumber)
       log.debug(s"[Main] - Blockchain: [${blockchainState.fullBlockchain.map(_.value.slotNumber).mkString("->")}]")
       log.debug(s"[Main] - SLOT ${slotInEpoch.slotNumber} end in epoch ${slotInEpoch.epochNumber}")
       env.timeProvider.advance(env.slotDurationInMilliseconds)
