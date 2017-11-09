@@ -18,6 +18,9 @@ package object crypto {
 
   val KEY_LENGTH = 32
   val RANDOM_LENGTH = 32
+  // TODO: Change to a realistic values.
+  val SEED_NONCE: Seed = ByteString(123)
+  val SEED_TEST: Seed = ByteString(321)
 
   val curveParams: X9ECParameters = SECNamedCurves.getByName("secp256k1")
   val curve: ECDomainParameters = new ECDomainParameters(curveParams.getCurve, curveParams.getG, curveParams.getN, curveParams.getH)

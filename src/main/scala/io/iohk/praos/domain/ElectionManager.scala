@@ -3,7 +3,7 @@ package io.iohk.praos.domain
 import akka.util.ByteString
 
 import scala.math.pow
-import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, combineSeeds, kec256}
+import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, combineSeeds, kec256, SEED_TEST}
 
 case class ElectionManager(activeSlotCoefficient: Double, vrf: VerifiableRandomFunction) {
 
@@ -15,9 +15,9 @@ case class ElectionManager(activeSlotCoefficient: Double, vrf: VerifiableRandomF
       * TODO:
       *  1) Check if it is correct to apply a cryptohash like kec256, in order to generate a random seed of length
       *  32 bytes, so VRF current implementation(uses ECDSA 256) can be use.
-      *  2) Check if it is necessary concat another Nonce.
+      *  2) Check if it is necessary concat with SEED_TEST.
       */
-    val randomSeed = kec256(combineSeeds(genesis.genesisNonce, slotNumberToSeed))
+    val randomSeed = kec256(combineSeeds(genesis.genesisNonce, slotNumberToSeed, SEED_TEST))
 
     val (randomNonce, vrfProof) = vrf.prove(stakeholder.privateKey, randomSeed)
 

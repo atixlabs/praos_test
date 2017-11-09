@@ -36,11 +36,13 @@ class LedgerSpec extends FlatSpec with Matchers {
     val transaction2 = Transaction(publicKey2, publicKey1, 1)
 
     val block = Block(
-      state = None,
-      slotNumber = 1,
-      data = List(transaction1, transaction2),
-      proof = akka.util.ByteString("dummy proof") ,
-      nonce = ByteString(1),
+      UnsignedBlock(
+        state = None,
+        slotNumber = 1,
+        data = List(transaction1, transaction2),
+        proof = akka.util.ByteString("dummy proof") ,
+        nonce = (ByteString(1), akka.util.ByteString("another dummy proof"))
+      ),
       signature = akka.util.ByteString("dummy sign")
     )
 
@@ -49,6 +51,6 @@ class LedgerSpec extends FlatSpec with Matchers {
 
     val newStakeDistribution = StakeDistributionImpl(Map(publicKey1 -> 8, publicKey2 -> 4, publicKey3 -> 8))
     newSlotState.genesisDistribution shouldEqual newStakeDistribution
-    newSlotState.genesisNonce shouldBe combineSeeds(genesisNonce, block.nonce)
+    newSlotState.genesisNonce shouldBe combineSeeds(genesisNonce, block.value.nonce._1)
   }
 }

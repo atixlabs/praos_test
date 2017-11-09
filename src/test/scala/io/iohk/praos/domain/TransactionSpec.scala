@@ -28,7 +28,7 @@ class TransactionSpec extends FlatSpec with GivenWhenThen with Matchers {
     // A transaction transferring a stake of 3 from U1 to U1 (a "self" transaction).
     val transaction2 = Transaction(publicKey1, publicKey1, 3)
   }
-  
+
   "The stakeholder U1 holding a stake of 10" should "have a resulting stake of 7" in new TestSetup {
     When("a transaction transferring a stake of 3 from U1 to U2 is applied")
     val resultingStakeDistribution = stakeDistribution.applyTransaction(transaction1)
@@ -51,4 +51,3 @@ class TransactionSpec extends FlatSpec with GivenWhenThen with Matchers {
     resultingStakeDistribution shouldEqual stakeDistribution
   }
 }
-

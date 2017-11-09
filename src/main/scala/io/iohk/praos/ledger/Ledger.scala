@@ -22,7 +22,7 @@ case class LedgerImpl(consensusResolver: ConsensusResolver)
     val newBestBlockchain: BlockchainState = ConsensusResolver.pickMaxValid(currentBlockchainState)
     val blocksToApply: Blockchain = currentBlockchainState.fullBlockchain.lastOption
       .fold[Blockchain](newBestBlockchain.fullBlockchain) {
-        bestBlock => newBestBlockchain.fullBlockchain.filter(_.slotNumber > bestBlock.slotNumber)
+        bestBlock => newBestBlockchain.fullBlockchain.filter(_.value.slotNumber > bestBlock.value.slotNumber)
       }
     val newSlotState: Genesis = applyBlockChain(blocksToApply, lastSlotState)
     (newSlotState, newBestBlockchain)
@@ -34,10 +34,10 @@ case class LedgerImpl(consensusResolver: ConsensusResolver)
     )
 
   private def applyBlock(block: Block, slotState: Genesis): Genesis = {
-    val newStakeDistribution = block.data.foldLeft(slotState.genesisDistribution) { (stakeDistribution, tx) =>
+    val newStakeDistribution = block.value.data.foldLeft(slotState.genesisDistribution) { (stakeDistribution, tx) =>
       stakeDistribution.applyTransaction(tx)
     }
-    val newGenesisNonce = combineSeeds(slotState.genesisNonce, block.nonce)
+    val newGenesisNonce = combineSeeds(slotState.genesisNonce, block.value.nonce._1)
     Genesis(newStakeDistribution, newGenesisNonce)
   }
 }

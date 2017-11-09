@@ -3,8 +3,8 @@ package io.iohk.praos.domain
 import io.iohk.praos.crypto.Seed
 
 case class Environment(initialStakeDistribution: StakeDistribution,
-                       epochLength: Int,
-                       k: Int,
+                       epochLength: Int, // The paper refer as R
+                       lengthForCommonPrefix: Int, // The paper refer as K
                        slotDurationInMilliseconds: Int,
                        timeProvider: TimeProvider,
                        activeSlotCoefficient: Double,
