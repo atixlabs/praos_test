@@ -15,6 +15,12 @@ trait VerifiableRandomFunction {
   def verify(publicKey: Key, randomSeed: RandomValue, vrfVerifiableValues: (RandomValue, VrfProof)): Boolean
 }
 
+object VerifiableRandomFunction {
+
+  type VrfProof = ByteString
+
+}
+
 /**
   * VrfProof contains a fresh random value generated using the user public key, a random seed and
   * VerifiableRandomFunction.prove method. And also contains the proof, that will be used later,

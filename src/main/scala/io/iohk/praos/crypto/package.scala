@@ -1,8 +1,7 @@
 package io.iohk.praos
 
-import akka.util.ByteString
-
 import scala.annotation.tailrec
+import akka.util.ByteString
 import scala.util.Random
 import scala.math.abs
 

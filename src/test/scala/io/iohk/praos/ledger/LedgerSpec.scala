@@ -40,7 +40,7 @@ class LedgerSpec extends FlatSpec with Matchers {
         slotNumber = 1,
         data = List(transaction1, transaction2),
         proof = akka.util.ByteString("dummy proof") ,
-        nonce = (0, akka.util.ByteString.empty)),
+        nonce = (1, akka.util.ByteString("another dummy proof"))),
       signature = akka.util.ByteString("dummy sign")
     )
 
