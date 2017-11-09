@@ -1,5 +1,6 @@
 package io.iohk.praos.domain
 
+import akka.util.ByteString
 import io.iohk.praos.crypto.Key
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 
@@ -14,7 +15,7 @@ class EpochGenesisCalculatorSpec extends FeatureSpec with GivenWhenThen {
       val publicKey3: Key = akka.util.ByteString("3")
       val initialGenesis = Genesis(
         genesisDistribution = StakeDistributionImpl(Map(publicKey1 -> 10, publicKey2 -> 2, publicKey3 -> 8)),
-        genesisNonce = 321
+        genesisNonce = ByteString(321)
       )
 
       When("initial genesis is initialized")
@@ -36,7 +37,7 @@ class EpochGenesisCalculatorSpec extends FeatureSpec with GivenWhenThen {
       When("the new genesis is initialized")
       val newGenesis = Genesis(
         genesisDistribution = StakeDistributionImpl(Map(publicKey1 -> 5, publicKey2 -> 5, publicKey3 -> 10)),
-        genesisNonce = 321
+        genesisNonce = ByteString(321)
       )
       genesisHistory = genesisHistory.appendAt(newGenesis, 2)
 

@@ -6,7 +6,7 @@ import akka.util.ByteString
 object SignerImpl extends Signer {
   override def signedWith[T](data: T, privateKey: Key): Signed[T] = {
     // FIXME: Hasher, cipher and signature provider are hard-coded for simplicity.
-    val publicKey = getPublicKeyFromPrivateKey(privateKey)
+    val publicKey = pubKeyFromPrvKey(privateKey)
     val hasher = PredefinedHasher("MD5")
     val serializedData = ByteString(data.toString)
     val hashedData = hasher.hash(serializedData)

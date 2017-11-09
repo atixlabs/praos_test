@@ -1,14 +1,13 @@
 package io.iohk.praos.crypto
 
+import java.security.SecureRandom
 import org.scalatest.{FlatSpec, Matchers}
 import akka.util.ByteString
-import scala.util.Random
-
 
 class SignatureProviderImplSpec extends FlatSpec with Matchers {
 
   trait TestSetup {
-    val (userPublicKey, userPrivateKey) = generateKeyPair(Random.nextInt())
+    val (userPrivateKey, userPublicKey) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val signatureProvider: SignatureProvider = SignatureProviderImpl
     val message = serialize("I'm stakeholder Ua")
     def serialize(data: String): ByteString = ByteString(data)

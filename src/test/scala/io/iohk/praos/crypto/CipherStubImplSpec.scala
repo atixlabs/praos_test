@@ -1,14 +1,14 @@
 package io.iohk.praos.crypto
 
+import java.security.SecureRandom
+
 import org.scalatest.{FlatSpec, Matchers}
 import akka.util.ByteString
-import scala.util.Random
-
 
 class CipherStubImplSpec extends FlatSpec with Matchers {
 
   trait TestSetup {
-    val (userPublicKey, userPrivateKey) = generateKeyPair(Random.nextInt())
+    val (userPrivateKey, userPublicKey) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val cipher: Cipher = CipherStubImpl
     val message = serialize("a secret message")
     def serialize(data: String): ByteString = ByteString(data)

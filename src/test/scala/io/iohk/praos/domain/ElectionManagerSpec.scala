@@ -1,19 +1,20 @@
 package io.iohk.praos.domain
 
+import java.security.SecureRandom
+
 import org.scalatest.{FlatSpec, Matchers}
-import io.iohk.praos.crypto
-import io.iohk.praos.crypto.{VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateDifferentRandomValue, generateNewRandomValue}
+import io.iohk.praos.crypto._
 
 class ElectionManagerSpec extends FlatSpec with Matchers {
 
   trait TestSetup {
-    val vrf: VerifiableRandomFunction = VerifiableRandomFunctionStubImpl
+    val vrf: VerifiableRandomFunction = VerifiableRandomFunctionImpl
   }
 
   "Given a stakeholder with all stake, ElectionManager" should "allways choose him" in new TestSetup {
     val electionManager = ElectionManager(activeSlotCoefficient = 1, vrf)
 
-    val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
+    val (privateKey1, publicKey1) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val stakeholder1 = Stakeholder(privateKey1, publicKey1)
     val stakeDistribution = StakeDistributionImpl(Map(stakeholder1.publicKey -> 10))
     val genesisNonce = generateNewRandomValue()
@@ -33,10 +34,9 @@ class ElectionManagerSpec extends FlatSpec with Matchers {
   "Given a stakeholder with zero stake, ElectionManager" should "never choose him" in new TestSetup {
     val electionManager = ElectionManager(activeSlotCoefficient = 0.7, vrf)
 
-    val user1KeySeed = generateNewRandomValue()
-    val (publicKey1, privateKey1) = crypto.generateKeyPair(user1KeySeed)
+    val (privateKey1, publicKey1) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val stakeholder1 = Stakeholder(privateKey1, publicKey1)
-    val (publicKey2, privateKey2) = crypto.generateKeyPair(generateDifferentRandomValue(user1KeySeed))
+    val (privateKey2, publicKey2) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val stakeholder2 = Stakeholder(privateKey2, publicKey2)
     val stakeDistribution = StakeDistributionImpl(Map(stakeholder1.publicKey -> 0, stakeholder2.publicKey -> 5))
     val genesisNonce = generateNewRandomValue()

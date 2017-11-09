@@ -2,10 +2,12 @@ package io.iohk.praos.crypto
 
 import akka.util.ByteString
 
-
+/**
+  * TODO: Implement with ECDSA
+  */
 object SignatureProviderImpl extends SignatureProvider {
   override def getSignature(data: ByteString, privateKey: Key): Signature =
-    getPublicKeyFromPrivateKey(privateKey) ++ data
+    pubKeyFromPrvKey(privateKey)
 
-  override def getPublicKeyFromSignature(signature: Signature): Key = signature.splitAt(keyLength)._1
+  override def getPublicKeyFromSignature(signature: Signature): Key = signature
 }
