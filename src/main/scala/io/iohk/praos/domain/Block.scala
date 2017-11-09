@@ -5,7 +5,7 @@ import io.iohk.praos.crypto._
 
 
 case class Block(
-  state       : Option[Hasher#Digest],
+  state       : Option[ByteString],
   slotNumber  : SlotNumber,
   data        : List[Transaction],
   proof       : VerifiableRandomFunction#VrfProof,

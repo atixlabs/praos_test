@@ -8,7 +8,7 @@ import akka.util.ByteString
 class VerifiableRandomFunctionSpec extends FlatSpec with Matchers {
 
   trait testSetup {
-    val (user1PublicKey, user1PrivateKey) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
+    val (user1PrivateKey, user1PublicKey) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     val verifiableRandomFunction: VerifiableRandomFunction = VerifiableRandomFunctionImpl
     def serialize(data: String): ByteString = ByteString(data)
   }

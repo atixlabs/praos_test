@@ -3,26 +3,42 @@ package io.iohk.praos.domain
 import akka.util.ByteString
 
 import scala.math.pow
-import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, combineSeeds}
+import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, combineSeeds, kec256}
 
 case class ElectionManager(activeSlotCoefficient: Double, vrf: VerifiableRandomFunction) {
 
-  private def probLeader(stakeholderStake: RelativeStake): Double = 1 - pow(1 - activeSlotCoefficient, stakeholderStake)
-
-  private def probLeaderThreshold(randomLength: Int, probLeader: Double) = pow(2, randomLength) * probLeader
-
   def isStakeHolderLeader(stakeholder: Stakeholder, genesis: Genesis, slotInEpoch: SlotInEpoch):
     Option[(RandomValue, VerifiableRandomFunction#VrfProof)] = {
-    // TODO 1: Slot number into a PRNG seed.
-    // TODO 2: Check if it is necessary concat another Nonce.
-    val randomSeed = combineSeeds(genesis.genesisNonce, ByteString(slotInEpoch.slotNumber))
+
+    val slotNumberToSeed = ByteString(slotInEpoch.slotNumber)
+    /**
+      * TODO:
+      *  1) Check if it is correct to apply a cryptohash like kec256, in order to generate a random seed of length
+      *  32 bytes, so VRF current implementation(uses ECDSA 256) can be use.
+      *  2) Check if it is necessary concat another Nonce.
+      */
+    val randomSeed = kec256(combineSeeds(genesis.genesisNonce, slotNumberToSeed))
+
     val (randomNonce, vrfProof) = vrf.prove(stakeholder.privateKey, randomSeed)
 
     val probLeader = this.probLeader(RelativeStakeCalculator.calculate(stakeholder.publicKey, genesis.genesisDistribution))
-    val probLeaderThreshold = this.probLeaderThreshold(randomNonce.length, probLeader)
+    val probLeaderThreshold = this.probLeaderThreshold(randomNonce.length * BYTE_LENGTH, probLeader)
 
-    // TODO: FIX ME!
-    if (true /*BigInt(1, randomNonce.toArray) < probLeaderThreshold*/) Option((randomNonce, vrfProof))
+    val randomNonceAsPositiveBigInt = BigInt(1, randomNonce.toArray)
+    if (randomNonceAsPositiveBigInt < probLeaderThreshold) Option((randomNonce, vrfProof))
     else None
   }
+
+  /**
+    * @return The probability of a given stakeholder to be choose as leader
+    */
+  private def probLeader(stakeholderStake: RelativeStake): Double = 1 - pow(1 - activeSlotCoefficient, stakeholderStake)
+  /**
+    * @param randomLength length in bits
+    * @return the representation of the probability in the dimension of the random nonce vector
+    */
+  private def probLeaderThreshold(randomLength: Int, probLeader: Double): BigInt =
+    BigDecimal(pow(2, randomLength) * probLeader).toBigInt()
+
+  private val BYTE_LENGTH = 8
 }

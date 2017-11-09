@@ -8,7 +8,7 @@ import akka.util.ByteString
 class cryptoSpec extends FlatSpec with Matchers {
 
   trait testSetup {
-    val (userPublicKey, userPrivateKey) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
+    val (userPrivateKey, userPublicKey) = keyPairToByteStrings(generateKeyPair(new SecureRandom()))
     // val cipher: Cipher = CipherStubImpl
     // val signer: Signer = SignerStubImpl
     def serialize(data: String): ByteString = ByteString(data)

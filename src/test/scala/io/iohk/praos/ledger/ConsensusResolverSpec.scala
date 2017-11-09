@@ -108,7 +108,7 @@ class ConsensusResolverSpec extends FlatSpec with Matchers {
     slotNumber = slotNumber,
     data = List.empty,
     proof = ByteString.empty,
-    nonce = 0,
+    nonce = ByteString(0),
     signature = ByteString("dummy sign")
   )
 }

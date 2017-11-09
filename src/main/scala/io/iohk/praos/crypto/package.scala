@@ -11,7 +11,6 @@ import org.spongycastle.crypto.params._
 
 package object crypto {
 
-  // Original files
   type Key = ByteString
   type RandomValue = ByteString
   type Signature = ByteString
@@ -93,5 +92,5 @@ package object crypto {
   /**
     * Operation used to "combine" seeds. According to the Praos Formalization, it should be associative.
     */
-  def combineSeeds(x: Seed, y: Seed): Seed = x ++ y
+  def combineSeeds(seeds: Seed*): Seed = seeds.reduce(_ ++ _)
 }
