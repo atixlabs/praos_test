@@ -1,15 +1,17 @@
 package io.iohk.praos
 
-/*import io.iohk.praos.domain._
-import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+import io.iohk.praos.domain._
+import io.iohk.praos.crypto._
 import io.iohk.praos.ledger.{ConsensusResolver, LedgerImpl}
 import io.iohk.praos.util.TransactionsGenerator
-import sun.plugin.dom.exception.InvalidStateException*/
 import io.iohk.praos.util.Logger
+// scalastyle:off illegal.imports
+import sun.plugin.dom.exception.InvalidStateException
 
 object App extends Logger {
 
-  def main(args: Array[String]): Unit = ??? /*{
+  // scalastyle:off method.length
+  def main(args: Array[String]): Unit = {
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = Stakeholder(privateKey1, publicKey1)
@@ -26,7 +28,7 @@ object App extends Logger {
       lengthForCommonPrefix = 3,
       slotDurationInMilliseconds = 3000,
       timeProvider = new TimeProvider(initialTime = 0),
-      activeSlotCoefficient = 0.70,
+      activeSlotCoefficient = 0.20,
       initialNonce = generateNewRandomValue()
     )
     // Setup Domain objects
@@ -46,15 +48,15 @@ object App extends Logger {
     var genesisHistory: GenesisHistory = GenesisHistoryImpl(
       Map(0 -> Genesis(env.initialStakeDistribution, env.initialNonce))
     )
-    // Run the protocol for 1 epoch
-    (1 to env.epochLength).foreach { _ =>
+    // Run the protocol for 3 epoch
+    (1 to env.epochLength * 3).foreach { _ =>
       val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
       var genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch.epochNumber, genesisHistory).getOrElse(
         throw new InvalidStateException("Can not compute a genesis")
       )
       /**
         * @note slotState contains the stakeDistribution and nonce of the current slot
-        * For technical reasons we compute these data slot by slot.
+        *       For technical reasons we compute these data slot by slot.
         */
       var slotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1).getOrElse(
         throw new InvalidStateException(s"Can not get slot state for slot ${slotInEpoch.slotNumber}")
@@ -72,7 +74,7 @@ object App extends Logger {
           )
           val newBlock: Block = blockFactory.makeBlock(
             slotInEpoch.slotNumber,
-            isLeaderProof.get,
+            isLeaderProof.get._2,
             transactions,
             blockchainState.maybeHeadBlockHash,
             stakeholder,
@@ -85,11 +87,14 @@ object App extends Logger {
       /**
         * @note Applies the new transactions from the received blocks that belongs to the largest chain.
         */
-      (slotState, blockchainState) = ledger.slotEnd(slotState, blockchainState)
+      val (slotState1, blockchainState1) = ledger.slotEnd(slotState, blockchainState)
+      slotState = slotState1
+      blockchainState = blockchainState1
+
       genesisHistory = genesisHistory.appendAt(slotState, slotInEpoch.slotNumber)
       log.debug(s"[Main] - Blockchain: [${blockchainState.fullBlockchain.map(_.value.slotNumber).mkString("->")}]")
       log.debug(s"[Main] - SLOT ${slotInEpoch.slotNumber} end in epoch ${slotInEpoch.epochNumber}")
       env.timeProvider.advance(env.slotDurationInMilliseconds)
     }
-  }*/
+  }
 }
