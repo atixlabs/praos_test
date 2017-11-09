@@ -9,5 +9,5 @@ class TimeProvider(val initialTime: Int) {
   /**
     * @param step must be greater than Zero
     */
-  def advance(step: Int) = timeCounter += step
+  def advance(step: Int): Unit = timeCounter += step
 }

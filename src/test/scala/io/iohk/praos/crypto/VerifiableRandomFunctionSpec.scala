@@ -6,15 +6,10 @@ import akka.util.ByteString
 class VerifiableRandomFunctionSpec extends FlatSpec with Matchers {
 
   trait testSetup {
-    val (user1PublicKey, user1PrivateKey) = generateKeyPair(generateNewRandomValue())
+    val user1KeySeed = generateNewRandomValue()
+    val (user1PublicKey, user1PrivateKey) = generateKeyPair(user1KeySeed)
     val verifiableRandomFunction: VerifiableRandomFunction = VerifiableRandomFunctionStubImpl
     def serialize(data: String): ByteString = ByteString(data)
-  }
-
-  def generateDifferentRandomValue(randomValue: RandomValue): RandomValue = {
-    val anotherRandomValue = generateNewRandomValue()
-    if (randomValue == anotherRandomValue) generateDifferentRandomValue(randomValue)
-    else anotherRandomValue
   }
 
   "Verify using the user public key and the same seed" should "be okey" in new testSetup {
@@ -32,7 +27,7 @@ class VerifiableRandomFunctionSpec extends FlatSpec with Matchers {
   "Verify using a public key from a different user and the same seed" should "not be okey" in new testSetup {
     val randomSeed: RandomValue = generateNewRandomValue()
     val vrfResult = verifiableRandomFunction prove(user1PrivateKey, randomSeed)
-    val (user2PublicKey, user2PrivateKey) = generateKeyPair(generateNewRandomValue())
+    val (user2PublicKey, user2PrivateKey) = generateKeyPair(generateDifferentRandomValue(user1KeySeed))
     verifiableRandomFunction verify(user2PublicKey, randomSeed, vrfResult) shouldEqual false
   }
 

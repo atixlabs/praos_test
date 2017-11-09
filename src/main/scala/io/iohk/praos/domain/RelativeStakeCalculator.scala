@@ -1,6 +1,7 @@
 package io.iohk.praos.domain
 
 import io.iohk.praos.crypto.Key
+import io.iohk.praos.domain.StakeDistribution.Stake
 
 
 /**
@@ -32,10 +33,9 @@ object RelativeStakeCalculator {
     * @param stakeDistribution The stake distribution to be used in the calculations.
     */
   def calculate(publicKey: Key, stakeDistribution: StakeDistribution): RelativeStake = {
-    require(stakeDistribution.contains(publicKey), "No such stakeholder in the stake distribution")
-    val stakeholderStake = stakeDistribution(publicKey)
-    val totalStake = stakeDistribution.values.sum
-    RelativeStakeCalculator.calculate(stakeholderStake, totalStake)
+    val stake = stakeDistribution.stakeOf(publicKey)
+    val totalStake = stakeDistribution.totalStake
+    RelativeStakeCalculator.calculate(stake, totalStake)
   }
 }
 
