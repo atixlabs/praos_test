@@ -1,5 +1,6 @@
 package io.iohk.praos.domain
 
+import io.iohk.praos.beacon.SlotInEpoch
 import org.scalatest.{FlatSpec, Matchers}
 import io.iohk.praos.crypto
 import io.iohk.praos.crypto.{VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateDifferentRandomValue, generateNewRandomValue}

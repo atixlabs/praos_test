@@ -1,5 +1,6 @@
 package io.iohk.praos.domain
 
+import io.iohk.praos.beacon.SlotInEpoch
 import io.iohk.praos.crypto.Key
 import org.scalatest.{FeatureSpec, GivenWhenThen}
 

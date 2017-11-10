@@ -1,5 +1,6 @@
 package io.iohk.praos
 
+import io.iohk.praos.beacon.{SlotInEpochCalculator, TimeProvider}
 import io.iohk.praos.domain._
 import io.iohk.praos.crypto._
 import io.iohk.praos.ledger.{ConsensusResolver, LedgerImpl}

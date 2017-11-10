@@ -1,4 +1,4 @@
-package io.iohk.praos.domain
+package io.iohk.praos.beacon
 
 import org.scalatest.{FlatSpec, Matchers}
 

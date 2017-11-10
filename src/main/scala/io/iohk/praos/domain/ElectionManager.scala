@@ -1,5 +1,7 @@
 package io.iohk.praos.domain
 
+import io.iohk.praos.beacon.SlotInEpoch
+
 import scala.math.pow
 import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VrfProof, combineSeeds}
 

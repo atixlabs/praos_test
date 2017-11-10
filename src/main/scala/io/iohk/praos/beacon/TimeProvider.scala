@@ -1,4 +1,4 @@
-package io.iohk.praos.domain
+package io.iohk.praos.beacon
 
 /**
   * @param initialTime must be greater or equal to Zero.
