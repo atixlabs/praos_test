@@ -1,5 +1,6 @@
 package io.iohk.praos.domain
 
+import io.iohk.praos.beacon.TimeProvider
 import io.iohk.praos.crypto.Seed
 
 case class Environment(initialStakeDistribution: StakeDistribution,
