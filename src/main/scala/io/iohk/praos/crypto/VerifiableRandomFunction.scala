@@ -6,13 +6,14 @@ import scala.math.abs
 trait VerifiableRandomFunction {
 
   type VrfProof = ByteString
+  type VerfiableValue = (RandomValue, VrfProof)
 
   /**
     * @return (nonce, vrfProof)
     */
-  def prove(privateKey: Key, randomSeed: RandomValue): (RandomValue, VrfProof)
+  def prove(privateKey: Key, randomSeed: RandomValue): VerfiableValue
 
-  def verify(publicKey: Key, randomSeed: RandomValue, vrfVerifiableValues: (RandomValue, VrfProof)): Boolean
+  def verify(publicKey: Key, randomSeed: RandomValue, value: VerfiableValue): Boolean
 }
 
 object VerifiableRandomFunction {
@@ -42,7 +43,7 @@ object VerifiableRandomFunctionStubImpl extends VerifiableRandomFunction {
   /**
     * @return (randomNonce, vrfProof) This tuple could be verifiable given a public key and randomSeed
     */
-  def prove(privateKey: Key, randomSeed: RandomValue): (RandomValue, VrfProof) = {
+  def prove(privateKey: Key, randomSeed: RandomValue): VerfiableValue = {
     val publicKey = getPublicKeyFromPrivateKey(privateKey)
     (
       abs(BigInt(hasher.hash(publicKey ++ ByteString(randomSeed)).toArray).toInt),
@@ -50,8 +51,8 @@ object VerifiableRandomFunctionStubImpl extends VerifiableRandomFunction {
     )
   }
 
-  def verify(publicKey: Key, randomSeed: RandomValue, vrfVerifiableValues: (RandomValue, VrfProof)): Boolean = {
-    val (randomNonce, vrfProof) = vrfVerifiableValues
+  def verify(publicKey: Key, randomSeed: RandomValue, value: VerfiableValue): Boolean = {
+    val (randomNonce, vrfProof) = value
     randomNonce == abs(BigInt(hasher.hash(publicKey ++ ByteString(randomSeed)).toArray).toInt) && vrfProof == publicKey
   }
 }

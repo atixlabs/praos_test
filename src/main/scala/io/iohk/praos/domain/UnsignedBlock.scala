@@ -1,6 +1,6 @@
 package io.iohk.praos.domain
 
-import io.iohk.praos.crypto.{Hasher, Seed, VerifiableRandomFunction}
+import io.iohk.praos.crypto.{Hasher, VerifiableRandomFunction}
 
 /**
   * @note In the new block generation, exist another call to FVRF(EvalProve, ηj || sl || TEST).
@@ -16,4 +16,4 @@ case class UnsignedBlock (
   slotNumber  : SlotNumber,
   data        : List[Transaction],
   proof       : VerifiableRandomFunction#VrfProof,
-  nonce       : (Seed, VerifiableRandomFunction#VrfProof))
+  nonce       : VerifiableRandomFunction#VerfiableValue)

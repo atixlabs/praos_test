@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 
 /**
-  * Unit tests for class [[io.iohk.praos.domain.Block]].
+  * Unit tests for class [[io.iohk.praos.domain.Ledger]].
   */
 class LedgerSpec extends FlatSpec with Matchers {
 
@@ -21,7 +21,9 @@ class LedgerSpec extends FlatSpec with Matchers {
       fullBlockchain = List.empty[Block],
       receivedChains = List.empty[Blockchain]
     )
-    val ledger: Ledger = LedgerImpl(ConsensusResolver)
+
+    val blockManager = BlockManager(signer = SignerImpl, vrf = VerifiableRandomFunctionStubImpl)
+    val ledger: Ledger = LedgerImpl(ConsensusResolver, blockManager)
   }
 
   /**

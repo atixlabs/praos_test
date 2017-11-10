@@ -35,9 +35,9 @@ object App extends Logger {
       slotDurationInMilliseconds = env.slotDurationInMilliseconds
     )
     val vrf = VerifiableRandomFunctionStubImpl
-    val blockFactory = BlockFactory(signer = SignerImpl, vrf)
+    val blockManager = BlockManager(signer = SignerImpl, vrf)
     val epochGenesisCalculator: EpochGenesisCalculator = EpochGenesisCalculatorImpl(env.epochLength, env.lengthForCommonPrefix)
-    val ledger = LedgerImpl(ConsensusResolver)
+    val ledger = LedgerImpl(ConsensusResolver, blockManager)
     // Setup initial App state
     var blockchainState = BlockchainState(
       fullBlockchain = List.empty[Block],
@@ -68,7 +68,7 @@ object App extends Logger {
               currentSlotState.genesisDistribution,
               stakeHolders.map(_.publicKey),
               5)
-            val newBlock: Block = blockFactory.makeBlock(
+            val newBlock: Block = blockManager.makeBlock(
               slotInEpoch.slotNumber,
               vrfProof,
               transactions,

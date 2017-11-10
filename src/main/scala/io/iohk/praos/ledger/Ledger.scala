@@ -1,6 +1,6 @@
 package io.iohk.praos.ledger
 
-import io.iohk.praos.crypto.{Key, combineSeeds}
+import io.iohk.praos.crypto.combineSeeds
 import io.iohk.praos.domain._
 
 trait Ledger {
@@ -15,7 +15,7 @@ trait Ledger {
   def verifyChain(slotNumber: SlotNumber, newChain: Blockchain, genesisHistory: GenesisHistory): Boolean
 }
 
-case class LedgerImpl(consensusResolver: ConsensusResolver)
+case class LedgerImpl(consensusResolver: ConsensusResolver, blockManager: BlockManager)
   extends Ledger {
 
   override def receiveChain(currentBlockchainState: BlockchainState, newChain: Blockchain): BlockchainState =
@@ -35,13 +35,13 @@ case class LedgerImpl(consensusResolver: ConsensusResolver)
   }
 
   override def verifyChain(slotNumber: SlotNumber, newChain: Blockchain, genesisHistory: GenesisHistory): Boolean = {
-      require(newChain.size == 1, "Only singleton chains are allowed")
-      val block = newChain.head
+    require(newChain.size == 1, "Only singleton chains are allowed")
+    val block = newChain.head
 
-      val genesisAtSlot = genesisHistory.getGenesisAt(slotNumber)
+    val genesisAtSlot = genesisHistory.getGenesisAt(slotNumber)
 
-      require(genesisAtSlot.isDefined, s"No genesis associated to $slotNumber in genesis history")
-      this.verifyBlock(block, slotNumber, genesisAtSlot.get)
+    require(genesisAtSlot.isDefined, s"No genesis associated to $slotNumber in genesis history")
+    blockManager.verifyBlock(block, genesisAtSlot.get)
   }
 
   private def applyBlockChain(newBlockchain: Blockchain, slotState: Genesis): Genesis =
@@ -56,10 +56,4 @@ case class LedgerImpl(consensusResolver: ConsensusResolver)
     val newGenesisNonce = combineSeeds(slotState.genesisNonce, block.value.nonce._1)
     Genesis(newStakeDistribution, newGenesisNonce)
   }
-
-  private def verifyBlock(block: Block, slotNumber: SlotNumber, genesis: Genesis): Boolean = {
-    verifyIsLeader() && verifyNonce()
-  }
-
-  private def verifyIsLeader(genesis: Genesis, slotNumber: SlotNumber, publicKey: Key, proof: Ver)
 }

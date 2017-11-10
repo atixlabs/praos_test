@@ -47,8 +47,9 @@ package object crypto {
     */
   def combineSeeds(x: Seed, y: Seed): Seed = abs(x + y)
 
-  // TODO: Change to a realistic value.
+  // TODO: Change to realistic values.
   val SeedNonce: Seed = 123
+  val SeedTest: Seed = 456
 
   type Signature = ByteString
 }
