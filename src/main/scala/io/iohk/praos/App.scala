@@ -1,15 +1,15 @@
 package io.iohk.praos
 
-/*import io.iohk.praos.domain._
-import io.iohk.praos.crypto.{RandomValue, VerifiableRandomFunction, VerifiableRandomFunctionStubImpl, generateNewRandomValue}
+import io.iohk.praos.domain._
+import io.iohk.praos.crypto._
 import io.iohk.praos.ledger.{ConsensusResolver, LedgerImpl}
 import io.iohk.praos.util.TransactionsGenerator
-import sun.plugin.dom.exception.InvalidStateException*/
 import io.iohk.praos.util.Logger
 
 object App extends Logger {
 
-  def main(args: Array[String]): Unit = ??? /*{
+  // scalastyle:off method.length
+  def main(args: Array[String]): Unit = {
     // Setup an Stake Distribution
     val (publicKey1, privateKey1) = crypto.generateKeyPair(generateNewRandomValue())
     val stakeholder1 = Stakeholder(privateKey1, publicKey1)
@@ -26,7 +26,7 @@ object App extends Logger {
       lengthForCommonPrefix = 3,
       slotDurationInMilliseconds = 3000,
       timeProvider = new TimeProvider(initialTime = 0),
-      activeSlotCoefficient = 0.70,
+      activeSlotCoefficient = 0.20,
       initialNonce = generateNewRandomValue()
     )
     // Setup Domain objects
@@ -46,50 +46,53 @@ object App extends Logger {
     var genesisHistory: GenesisHistory = GenesisHistoryImpl(
       Map(0 -> Genesis(env.initialStakeDistribution, env.initialNonce))
     )
-    // Run the protocol for 1 epoch
-    (1 to env.epochLength).foreach { _ =>
+    // Run the protocol for 3 epoch
+    (1 to env.epochLength * 3).foreach { _ =>
       val slotInEpoch = slotInEpochCalculator.calculate(env.timeProvider)
-      var genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch.epochNumber, genesisHistory).getOrElse(
-        throw new InvalidStateException("Can not compute a genesis")
+      val genesis: Genesis = epochGenesisCalculator.computeGenesisForEpoch(slotInEpoch.epochNumber, genesisHistory).getOrElse(
+        throw new IllegalStateException("Can not compute a genesis")
       )
       /**
         * @note slotState contains the stakeDistribution and nonce of the current slot
-        * For technical reasons we compute these data slot by slot.
+        *       For technical reasons we compute these data slot by slot.
         */
-      var slotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1).getOrElse(
-        throw new InvalidStateException(s"Can not get slot state for slot ${slotInEpoch.slotNumber}")
+      val currentSlotState: Genesis = genesisHistory.getGenesisAt(slotInEpoch.slotNumber - 1).getOrElse(
+        throw new IllegalStateException(s"Can not get slot state for slot ${slotInEpoch.slotNumber}")
       )
       stakeHolders.foreach(stakeholder => {
-        val isLeaderProof: Option[(RandomValue, VerifiableRandomFunction#VrfProof)] =
-          ElectionManager(env.activeSlotCoefficient, vrf)
-            .isStakeHolderLeader(stakeholder, genesis, slotInEpoch)
-        if (isLeaderProof.isDefined) {
-          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) ELECTED for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
-          val transactions: List[Transaction] = TransactionsGenerator.generateTxs(
-            slotState.genesisDistribution,
-            stakeHolders.map(_.publicKey),
-            5
+        ElectionManager(env.activeSlotCoefficient, vrf).isStakeHolderLeader(stakeholder, genesis, slotInEpoch) match {
+          case Some((vrfRandomNonce, vrfProof)) => {
+            log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) ELECTED " +
+              s"for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
+            val transactions: List[Transaction] = TransactionsGenerator.generateTxs(
+              currentSlotState.genesisDistribution,
+              stakeHolders.map(_.publicKey),
+              5)
+            val newBlock: Block = blockFactory.makeBlock(
+              slotInEpoch.slotNumber,
+              vrfProof,
+              transactions,
+              blockchainState.maybeHeadBlockHash,
+              stakeholder,
+              genesis.genesisNonce)
+            val newChain: Blockchain = List(newBlock)
+            blockchainState = ledger.receiveChain(blockchainState, newChain)
+          }
+          case None => log.debug(
+            s"[Main] - stakeholder(${stakeholder.publicKey.head}) NOT elected " +
+              s"for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}"
           )
-          val newBlock: Block = blockFactory.makeBlock(
-            slotInEpoch.slotNumber,
-            isLeaderProof.get,
-            transactions,
-            blockchainState.maybeHeadBlockHash,
-            stakeholder,
-            genesis.genesisNonce)
-          val newChain: Blockchain = List(newBlock)
-          blockchainState = ledger.receiveChain(blockchainState, newChain)
-        } else
-          log.debug(s"[Main] - stakeholder(${stakeholder.publicKey.head}) NOT elected for slot ${slotInEpoch.slotNumber} in epoch ${slotInEpoch.epochNumber}")
+        }
       })
       /**
         * @note Applies the new transactions from the received blocks that belongs to the largest chain.
         */
-      (slotState, blockchainState) = ledger.slotEnd(slotState, blockchainState)
-      genesisHistory = genesisHistory.appendAt(slotState, slotInEpoch.slotNumber)
+      val (newSlotState, newBlockchainState) = ledger.slotEnd(currentSlotState, blockchainState)
+      blockchainState = newBlockchainState
+      genesisHistory = genesisHistory.appendAt(newSlotState, slotInEpoch.slotNumber)
       log.debug(s"[Main] - Blockchain: [${blockchainState.fullBlockchain.map(_.value.slotNumber).mkString("->")}]")
       log.debug(s"[Main] - SLOT ${slotInEpoch.slotNumber} end in epoch ${slotInEpoch.epochNumber}")
       env.timeProvider.advance(env.slotDurationInMilliseconds)
     }
-  }*/
+  }
 }
